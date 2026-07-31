@@ -398,6 +398,22 @@
     color: #6a4a10;
   }
 
+  .duty-swap-name {
+    background: #edf4ea;
+    color: var(--green);
+    font-weight: 700;
+    border-radius: 999px;
+    padding: 2px 7px;
+  }
+
+  .duty-adjusted-department {
+    background: #e8f2ff;
+    color: #2369b4;
+    font-weight: 700;
+    border-radius: 999px;
+    padding: 2px 7px;
+  }
+
   .form {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -581,41 +597,45 @@
   }
 
   @media (max-width: 760px) {
+    html {
+      overflow-x: hidden;
+    }
+
     body {
       min-width: 0;
+      overflow-x: hidden;
+      padding-bottom: calc(82px + env(safe-area-inset-bottom));
       background:
         radial-gradient(circle at 12% 8%, rgba(255, 212, 95, 0.50), transparent 24%),
         linear-gradient(135deg, #fff8df 0%, #fffaf1 50%, #f2eaff 100%);
     }
 
     .app {
-      grid-template-columns: 76px minmax(0, 1fr);
-      min-height: 100vh;
+      grid-template-columns: minmax(0, 1fr);
+      min-height: 100svh;
     }
 
     .sidebar {
-      position: sticky;
-      top: 0;
-      height: 100vh;
-      padding: 10px 8px;
-      overflow-y: auto;
-      border-right: 1px solid rgba(255, 249, 232, 0.24);
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 50;
+      height: auto;
+      padding: 8px 8px calc(8px + env(safe-area-inset-bottom));
+      overflow: hidden;
+      border-right: 0;
+      border-top: 1px solid rgba(255, 249, 232, 0.24);
+      box-shadow: 0 -10px 30px rgba(74, 59, 115, 0.18);
     }
 
-    .sidebar::before {
-      right: 12px;
-      top: 56px;
-      font-size: 18px;
-    }
-
+    .sidebar::before,
     .sidebar::after {
-      left: 16px;
-      bottom: 18px;
-      font-size: 15px;
+      display: none;
     }
 
     .logo {
-      margin-bottom: 12px;
+      display: none;
     }
 
     .logo > p {
@@ -623,10 +643,7 @@
     }
 
     .brand-card {
-      padding: 8px;
-      margin-bottom: 10px;
-      border-radius: 20px;
-      text-align: center;
+      display: none;
     }
 
     .brand-mark {
@@ -650,8 +667,17 @@
 
     .nav {
       display: flex;
-      flex-direction: column;
-      gap: 8px;
+      flex-direction: row;
+      gap: 6px;
+      overflow-x: auto;
+      overflow-y: hidden;
+      padding: 2px 0;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .nav::-webkit-scrollbar {
+      display: none;
     }
 
     .nav button {
@@ -659,12 +685,12 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      width: 60px;
-      min-height: 66px;
-      padding: 7px 4px;
-      border-radius: 18px;
+      flex: 0 0 64px;
+      min-height: 58px;
+      padding: 6px 4px;
+      border-radius: 16px;
       text-align: center;
-      font-size: 11px;
+      font-size: 10px;
       line-height: 1.2;
       color: rgba(255, 249, 232, 0.82);
     }
@@ -676,17 +702,18 @@
     }
 
     .nav-icon {
-      width: 34px;
-      height: 34px;
+      width: 30px;
+      height: 30px;
       margin: 0 0 4px 0;
-      border-radius: 14px;
+      border-radius: 12px;
       background: rgba(255, 249, 232, 0.18);
-      font-size: 18px;
+      font-size: 16px;
     }
 
     .main {
       min-width: 0;
-      padding: 12px 10px 20px;
+      width: 100%;
+      padding: 10px 10px 18px;
     }
 
     .topbar {
@@ -788,6 +815,8 @@
       padding: 14px;
       border-radius: 22px;
       box-shadow: 0 12px 28px rgba(74, 59, 115, 0.10);
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
     }
 
     .metric {
@@ -822,6 +851,7 @@
 
     table {
       font-size: 12px;
+      min-width: 520px;
     }
 
     th,
@@ -1148,16 +1178,20 @@
         </div>
         <div class="actions" style="margin-bottom: 12px;">
           <button class="primary" id="confirmDutyDraftBtn">确认并加入正式安排</button>
+          <button class="secondary" id="exportDutyDraftExcelBtn">导出草案Excel</button>
           <button class="ghost" id="clearDutyDraftBtn">清空草案</button>
         </div>
         <div id="dutyDraftTable"></div>
       </div>
       <div class="card">
         <div class="section-title">
-          <h3>本周检查安排示例</h3>
-          <span>后续可改为真实数据</span>
+          <h3>护长总值安排</h3>
+          <span>查看、换班和必要时微调</span>
         </div>
-        <div class="form" style="margin-bottom: 12px;">
+        <div class="actions" style="margin-bottom: 12px;">
+          <button class="ghost" id="toggleDutyManualFormBtn">展开手动编辑</button>
+        </div>
+        <div class="form" id="dutyManualForm" style="display: none; margin-bottom: 12px;">
           <div class="field">
             <label>日期</label>
             <input type="date" id="dutyDate">
@@ -1204,6 +1238,36 @@
               <option value="archived">只看归档</option>
             </select>
           </div>
+        </div>
+        <div class="card" style="margin-bottom: 12px; box-shadow: none;">
+          <div class="section-title">
+            <h3>更换护长排班</h3>
+            <span>只互换护长，检查科室不互换</span>
+          </div>
+          <div class="form" style="margin-bottom: 10px;">
+            <div class="field">
+              <label>互换月份</label>
+              <select id="swapDutyMonth"></select>
+            </div>
+            <div class="field">
+              <label>护长 A</label>
+              <select id="swapDutyNurseA">
+                <option value="">请选择护长</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>护长 B</label>
+              <select id="swapDutyNurseB">
+                <option value="">请选择护长</option>
+              </select>
+            </div>
+            <div class="field full">
+              <button class="secondary" id="swapDutyNurseBtn">按护长姓名互换排班</button>
+              <button class="ghost" id="cleanSwapNotesBtn" style="margin-top: 8px;">清理历史互换备注</button>
+              <div class="hint" style="margin-top: 8px;">系统只互换所选月份内两位护长的排班姓名，检查科室不跟着互换；互换后自动校验本人科室冲突。其他月份不受影响。</div>
+            </div>
+          </div>
+          <div id="swapDutyResult" class="empty" style="display: none;"></div>
         </div>
         <div id="dutyTable"></div>
       </div>
@@ -1464,6 +1528,10 @@
 
 <script>
   const storageKey = "nursing-workbench-v1";
+  const MOBILE_DATA_KEY = "deer-star-mobile-workbench-v1";
+  const MOBILE_TOKEN_KEY = "deer-star-mobile-login-ok";
+  const MOBILE_PASSWORD_SALT = "deer-star-mobile";
+  const MOBILE_PASSWORD_HASH = "6d2ccfdf";
   function toLocalIso(date = new Date()) {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -1482,12 +1550,12 @@
 
   const DUTY_DEPARTMENTS = [
     "景田北社区医院", "肛肠科", "外科", "骨伤一科", "脑病科", "儿科", "妇科", "骨伤二科", "重症医学科",
-    "急诊综合病房", "麻醉科/手术室", "急诊科", "脾胃病科", "心血管科", "内分泌科", "肺病科",
+    "急诊综合病区", "麻醉科/手术室", "急诊科", "脾胃病科", "心血管科", "内分泌科", "肺病科",
     "肿瘤五科", "肿瘤四科", "肿瘤三科", "肿瘤二科", "肿瘤一科", "肾病风湿", "推拿科", "康复科", "针灸科"
   ];
 
   const HIGH_RISK_DUTY_DEPARTMENTS = [
-    "肛肠科", "骨伤二科", "肾病风湿", "外科", "脑病科", "妇科", "急诊科", "急诊综合病房", "肺病科"
+    "肛肠科", "骨伤二科", "肾病风湿", "外科", "脑病科", "妇科", "急诊科", "急诊综合病区", "肺病科"
   ];
 
   const DUTY_NURSE_DEPARTMENT_MAP = {
@@ -1535,7 +1603,7 @@
 
   const DUTY_DEPARTMENT_ALIASES = {
     "心血管科": "心血管病科",
-    "急诊综合病区": "急诊综合病房",
+    "急诊综合病房": "急诊综合病区",
     "麻醉科/手术室": "手术室"
   };
 
@@ -1543,31 +1611,31 @@
     ["2026-08-01", "李娜", true, ["景田北社区医院", "肺病科", "肛肠科", "康复科", "重症医学科", "急诊科"]],
     ["2026-08-02", "罗丽丹", true, ["妇科", "肿瘤一科", "外科", "肾病风湿", "脑病科", "骨伤二科"]],
     ["2026-08-03", "王泽红", false, ["心血管科", "骨伤一科", "儿科"]],
-    ["2026-08-04", "马鹏莉", false, ["景田北社区医院", "急诊综合病房", "内分泌科"]],
+    ["2026-08-04", "马鹏莉", false, ["景田北社区医院", "急诊综合病区", "内分泌科"]],
     ["2026-08-05", "张慧慧", false, ["肺病科", "肛肠科", "麻醉科/手术室"]],
     ["2026-08-06", "吕海鹏", false, ["骨伤二科", "肾病风湿", "肿瘤五科"]],
     ["2026-08-07", "陈应平", false, ["外科", "脑病科", "肿瘤四科"]],
-    ["2026-08-08", "黄萍燕", true, ["脾胃病科", "妇科", "急诊科", "急诊综合病房", "肿瘤三科", "肿瘤二科"]],
+    ["2026-08-08", "黄萍燕", true, ["脾胃病科", "妇科", "急诊科", "急诊综合病区", "肿瘤三科", "肿瘤二科"]],
     ["2026-08-09", "龚杨", true, ["景田北社区医院", "肺病科", "肛肠科", "骨伤二科", "推拿科", "针灸科"]],
     ["2026-08-10", "陈薇薇", false, ["儿科", "肾病风湿", "外科"]],
     ["2026-08-11", "游旅", false, ["脑病科", "妇科", "重症医学科"]],
-    ["2026-08-12", "吴蒙", false, ["急诊科", "急诊综合病房", "骨伤一科"]],
+    ["2026-08-12", "吴蒙", false, ["急诊科", "急诊综合病区", "骨伤一科"]],
     ["2026-08-13", "刘牧军", false, ["景田北社区医院", "肺病科", "肛肠科"]],
     ["2026-08-14", "计娜", false, ["骨伤二科", "肾病风湿", "麻醉科/手术室"]],
     ["2026-08-15", "吴玉娟", true, ["肿瘤五科", "外科", "脑病科", "妇科", "心血管科", "内分泌科"]],
-    ["2026-08-16", "钟雪莲", true, ["景田北社区医院", "急诊科", "急诊综合病房", "肺病科", "肿瘤四科", "肿瘤三科"]],
+    ["2026-08-16", "钟雪莲", true, ["景田北社区医院", "急诊科", "急诊综合病区", "肺病科", "肿瘤四科", "肿瘤三科"]],
     ["2026-08-17", "徐硕阳", false, ["肿瘤一科", "肛肠科", "骨伤二科"]],
     ["2026-08-18", "高玲玲", false, ["肾病风湿", "外科", "肿瘤二科"]],
     ["2026-08-19", "吴杰倩", false, ["景田北社区医院", "脑病科", "妇科"]],
-    ["2026-08-20", "陈苑婷", false, ["急诊科", "急诊综合病房", "脾胃病科"]],
+    ["2026-08-20", "陈苑婷", false, ["急诊科", "急诊综合病区", "脾胃病科"]],
     ["2026-08-21", "黄燕芳", false, ["肺病科", "肛肠科", "康复科"]],
     ["2026-08-22", "李晓", true, ["重症医学科", "骨伤二科", "肾病风湿", "外科", "推拿科", "针灸科"]],
     ["2026-08-23", "靳彩云", true, ["景田北社区医院", "脑病科", "妇科", "急诊科", "麻醉科/手术室", "骨伤一科"]],
-    ["2026-08-24", "林金", false, ["内分泌科", "急诊综合病房", "肺病科"]],
+    ["2026-08-24", "林金", false, ["内分泌科", "急诊综合病区", "肺病科"]],
     ["2026-08-25", "包爱琴", false, ["肛肠科", "骨伤二科", "儿科"]],
     ["2026-08-26", "俞菲", false, ["肾病风湿", "外科", "心血管科"]],
     ["2026-08-27", "徐子才", false, ["景田北社区医院", "脑病科", "妇科"]],
-    ["2026-08-28", "翟妍", false, ["急诊科", "急诊综合病房", "肿瘤五科"]],
+    ["2026-08-28", "翟妍", false, ["急诊科", "急诊综合病区", "肿瘤五科"]],
     ["2026-08-29", "宋春树", true, ["脾胃病科", "肺病科", "肛肠科", "肿瘤四科", "肿瘤三科", "肿瘤二科"]],
     ["2026-08-30", "彭细果", true, ["景田北社区医院", "骨伤二科", "肾病风湿", "外科", "肿瘤一科", "康复科"]],
     ["2026-08-31", "肖美", false, ["推拿科", "脑病科", "妇科"]]
@@ -1576,7 +1644,7 @@
   const JULY_2026_ACTUAL_DUTY_SOURCE = [
     ["2026-07-29", "彭细果", false, ["骨伤二科", "肛肠科", "肾病风湿"]],
     ["2026-07-30", "肖美", false, ["景田北社区医院", "推拿科", "麻醉科/手术室"]],
-    ["2026-07-31", "卢建荣", false, ["肿瘤二科", "急诊综合病房", "骨伤一科"]]
+    ["2026-07-31", "卢建荣", false, ["肿瘤二科", "急诊综合病区", "骨伤一科"]]
   ];
 
   function buildJuly2026ActualDutySchedule() {
@@ -1606,49 +1674,9 @@
   }
 
   const defaultData = {
-    tasks: [
-      {
-        id: createId(),
-        date: todayIso,
-        category: "护长总值",
-        priority: "高",
-        status: "未开始",
-        title: "发送今日护长总值检查科室",
-        next: "核对今日护长总值人员和检查科室，复制企业微信通知文案后发送。"
-      },
-      {
-        id: createId(),
-        date: todayIso,
-        category: "不良事件",
-        priority: "高",
-        status: "进行中",
-        title: "审核今日不良事件系统新增上报",
-        next: "先查看事件类型、原因分析和整改措施，标记需退回修改的记录。"
-      },
-      {
-        id: createId(),
-        date: todayIso,
-        category: "压力性损伤",
-        priority: "中",
-        status: "未开始",
-        title: "处理 OA 压力性损伤报表审批",
-        next: "先核对 Braden 评分，再看科室意见和专科小组审批意见是否合理。"
-      },
-      {
-        id: createId(),
-        date: todayIso,
-        category: "三名工程",
-        priority: "中",
-        status: "需跟进",
-        title: "更新三名工程月例会进度",
-        next: "对照任务书和绩效考核条目，补充本月成果产出和材料缺口。"
-      }
-    ],
-    duty: [
-      { id: createId(), date: todayIso, nurse: "今日护长总值", departments: ["内一科", "针灸康复科", "骨伤科"], holiday: false, status: "待发送", note: "" },
-      { id: createId(), date: addDays(1), nurse: "待填写", departments: ["外科", "妇科", "急诊科"], holiday: false, status: "待发送", note: "" },
-      { id: createId(), date: addDays(2), nurse: "待填写", departments: ["老年病科", "治未病科", "脾胃病科"], holiday: false, status: "待发送", note: "" }
-    ],
+    tasks: [],
+    duty: [],
+    dutyDrafts: [],
     experts: []
   };
 
@@ -1672,31 +1700,85 @@
   }
 
   function loadLocalData() {
-    const saved = localStorage.getItem(storageKey);
+    const mobileSaved = safeParseLocalStorage(MOBILE_DATA_KEY);
+    const workbenchSaved = safeParseLocalStorage(storageKey);
+    const saved = pickBestLocalData(mobileSaved, workbenchSaved);
     if (!saved) return structuredClone(defaultData);
     try {
-      const parsed = JSON.parse(saved);
-      if (!Array.isArray(parsed.tasks)) parsed.tasks = [];
-      if (!Array.isArray(parsed.duty)) parsed.duty = structuredClone(defaultData.duty);
-      if (!Array.isArray(parsed.dutyDrafts)) parsed.dutyDrafts = [];
-      parsed.duty = parsed.duty.map(item => ({
-        id: item.id || createId(),
-        date: item.date || todayIso,
-        nurse: item.nurse || "",
-        departments: Array.isArray(item.departments) ? item.departments : [],
-        holiday: Boolean(item.holiday),
-        status: item.status || "待发送",
-        note: item.note || ""
-      }));
-      if (!Array.isArray(parsed.experts)) parsed.experts = [];
+      const parsed = normalizeWorkbenchData(saved);
       return parsed;
     } catch {
       return structuredClone(defaultData);
     }
   }
 
+  function safeParseLocalStorage(key) {
+    try {
+      const saved = localStorage.getItem(key);
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  }
+
+  function localDataScore(payload) {
+    if (!payload || typeof payload !== "object") return 0;
+    const knownScore = (Array.isArray(payload.tasks) ? payload.tasks.length : 0)
+      + (Array.isArray(payload.experts) ? payload.experts.length : 0)
+      + (Array.isArray(payload.duty) ? payload.duty.length : 0)
+      + (Array.isArray(payload.dutyDrafts) ? payload.dutyDrafts.length : 0);
+    const extraScore = Object.entries(payload).reduce((sum, [key, value]) => {
+      if (["tasks", "experts", "duty", "dutyDrafts"].includes(key)) return sum;
+      if (Array.isArray(value)) return sum + value.length;
+      if (value && typeof value === "object") return sum + Object.keys(value).length;
+      return sum;
+    }, 0);
+    return knownScore + extraScore;
+  }
+
+  function pickBestLocalData(primary, backup) {
+    const primaryScore = localDataScore(primary);
+    const backupScore = localDataScore(backup);
+    return primaryScore >= backupScore ? primary : backup;
+  }
+
+  function normalizeDutyDepartmentName(name) {
+    return name === "急诊综合病房" ? "急诊综合病区" : name;
+  }
+
+  function normalizeWorkbenchData(parsed) {
+      if (!Array.isArray(parsed.tasks)) parsed.tasks = [];
+      if (!Array.isArray(parsed.duty)) parsed.duty = [];
+      if (!Array.isArray(parsed.dutyDrafts)) parsed.dutyDrafts = [];
+      parsed.duty = parsed.duty.map(item => ({
+        id: item.id || createId(),
+        date: item.date || todayIso,
+        nurse: item.nurse || "",
+        departments: Array.isArray(item.departments) ? item.departments.map(normalizeDutyDepartmentName) : [],
+        adjustedDepartments: Array.isArray(item.adjustedDepartments) ? item.adjustedDepartments.map(normalizeDutyDepartmentName) : [],
+        holiday: Boolean(item.holiday),
+        status: item.status || "待发送",
+        note: item.note || ""
+      }));
+      parsed.dutyDrafts = parsed.dutyDrafts.map(item => ({
+        ...item,
+        departments: Array.isArray(item.departments) ? item.departments.map(normalizeDutyDepartmentName) : [],
+        adjustedDepartments: Array.isArray(item.adjustedDepartments) ? item.adjustedDepartments.map(normalizeDutyDepartmentName) : []
+      }));
+      if (!Array.isArray(parsed.experts)) parsed.experts = [];
+      return parsed;
+  }
+
   function saveLocalData() {
-    localStorage.setItem(storageKey, JSON.stringify(data));
+    const payload = {
+      ...data,
+      tasks: Array.isArray(data.tasks) ? data.tasks : [],
+      experts: Array.isArray(data.experts) ? data.experts : [],
+      duty: Array.isArray(data.duty) ? data.duty : [],
+      dutyDrafts: Array.isArray(data.dutyDrafts) ? data.dutyDrafts : []
+    };
+    localStorage.setItem(storageKey, JSON.stringify(payload));
+    localStorage.setItem(MOBILE_DATA_KEY, JSON.stringify(payload));
   }
 
   function readStoredWorkbenchData() {
@@ -1768,10 +1850,6 @@
     };
   }
 
-  const MOBILE_DATA_KEY = "deer-star-mobile-workbench-v1";
-  const MOBILE_TOKEN_KEY = "deer-star-mobile-login-ok";
-  const MOBILE_PASSWORD_SALT = "deer-star-mobile";
-  const MOBILE_PASSWORD_HASH = "6d2ccfdf";
   let localSyncCache = null;
   let localAuthToken = localStorage.getItem(MOBILE_TOKEN_KEY) || "";
 
@@ -1823,37 +1901,18 @@
   async function loadLocalSyncCache() {
     if (localSyncCache) return localSyncCache;
     try {
-      const saved = localStorage.getItem(MOBILE_DATA_KEY);
-      if (!saved) {
-        const storedWorkbench = readStoredWorkbenchData();
-        localSyncCache = {
-          tasks: Array.isArray(storedWorkbench?.tasks) ? storedWorkbench.tasks : [],
-          experts: Array.isArray(storedWorkbench?.experts) ? storedWorkbench.experts : [],
-          duty: Array.isArray(storedWorkbench?.duty) ? storedWorkbench.duty : [],
-          dutyDrafts: Array.isArray(storedWorkbench?.dutyDrafts) ? storedWorkbench.dutyDrafts : []
-        };
-        localStorage.setItem(MOBILE_DATA_KEY, JSON.stringify(localSyncCache));
-        return localSyncCache;
-      }
-      const payload = JSON.parse(saved);
+      const payload = safeParseLocalStorage(MOBILE_DATA_KEY);
       const storedWorkbench = readStoredWorkbenchData();
-      localSyncCache = {
-        tasks: Array.isArray(payload.tasks) ? payload.tasks : (Array.isArray(storedWorkbench?.tasks) ? storedWorkbench.tasks : []),
-        experts: Array.isArray(payload.experts) ? payload.experts : (Array.isArray(storedWorkbench?.experts) ? storedWorkbench.experts : []),
-        duty: Array.isArray(payload.duty) && payload.duty.length ? payload.duty : (Array.isArray(storedWorkbench?.duty) ? storedWorkbench.duty : []),
-        dutyDrafts: Array.isArray(payload.dutyDrafts) ? payload.dutyDrafts : (Array.isArray(storedWorkbench?.dutyDrafts) ? storedWorkbench.dutyDrafts : [])
-      };
+      localSyncCache = normalizeWorkbenchData(pickBestLocalData(payload, storedWorkbench) || structuredClone(defaultData));
+      localStorage.setItem(MOBILE_DATA_KEY, JSON.stringify(localSyncCache));
+      localStorage.setItem(storageKey, JSON.stringify(localSyncCache));
       return localSyncCache;
     } catch (error) {
       const storedWorkbench = readStoredWorkbenchData();
-      localSyncCache = {
-        tasks: Array.isArray(storedWorkbench?.tasks) ? storedWorkbench.tasks : [],
-        experts: Array.isArray(storedWorkbench?.experts) ? storedWorkbench.experts : [],
-        duty: Array.isArray(storedWorkbench?.duty) ? storedWorkbench.duty : [],
-        dutyDrafts: Array.isArray(storedWorkbench?.dutyDrafts) ? storedWorkbench.dutyDrafts : []
-      };
+      localSyncCache = normalizeWorkbenchData(storedWorkbench || structuredClone(defaultData));
       try {
         localStorage.setItem(MOBILE_DATA_KEY, JSON.stringify(localSyncCache));
+        localStorage.setItem(storageKey, JSON.stringify(localSyncCache));
       } catch {}
       return localSyncCache;
     }
@@ -1861,7 +1920,9 @@
 
   async function saveLocalSyncCache() {
     try {
-      localStorage.setItem(MOBILE_DATA_KEY, JSON.stringify(localSyncCache || { tasks: [], experts: [], duty: [], dutyDrafts: [] }));
+      const payload = localSyncCache || structuredClone(defaultData);
+      localStorage.setItem(MOBILE_DATA_KEY, JSON.stringify(payload));
+      localStorage.setItem(storageKey, JSON.stringify(payload));
     } catch (error) {
       throw new Error("手机浏览器本地存储不可用");
     }
@@ -2258,6 +2319,8 @@
       if (archiveMode === "archived" && item.status !== "已归档") return false;
       return true;
     }).sort((a, b) => (a.date || "").localeCompare(b.date || ""));
+    refreshSwapDutyMonthOptions();
+    refreshSwapDutyNurseOptions();
 
     if (!visible.length) {
       document.getElementById("dutyTable").innerHTML = `<div class="empty">暂无护长总值安排，可以先新增一条。</div>`;
@@ -2269,13 +2332,14 @@
       <tbody>${visible.map(d => {
         const need = d.holiday ? 6 : 3;
         const actual = (d.departments || []).length;
+        const conflict = getDutyConflict(d);
         return `<tr>
         <td>${d.date}</td>
-        <td>${escapeHtml(d.nurse || "")}</td>
+        <td>${renderDutyNurseCell(d)}</td>
         <td>${need}</td>
         <td>${actual}${actual < need ? "<br><span class='tag high'>未达标</span>" : ""}</td>
         <td><span class="tag state">${d.status || "待发送"}</span></td>
-        <td>${escapeHtml((d.departments || []).join("、"))}${d.note ? `<br><span class="hint">${escapeHtml(d.note)}</span>` : ""}</td>
+        <td>${renderDutyDepartmentsCell(d)}${conflict ? `<br><span class="tag high">本人科室冲突</span>` : ""}${d.note ? `<br><span class="hint">${escapeHtml(d.note)}</span>` : ""}</td>
         <td>
           ${d.status !== "已归档" ? `<button class="ghost" onclick="startEditDuty('${d.id}')">编辑</button>` : ""}
           ${d.status !== "已发送" && d.status !== "已归档" ? `<button class="ghost" onclick="changeDutyStatus('${d.id}', '已发送')">已发送</button>` : ""}
@@ -2324,6 +2388,233 @@
           </tr>`).join("")}
         </tbody>
       </table>`;
+  }
+
+  function escapeXml(text) {
+    return String(text ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&apos;");
+  }
+
+  function crc32(bytes) {
+    let crc = -1;
+    for (let i = 0; i < bytes.length; i++) {
+      crc ^= bytes[i];
+      for (let j = 0; j < 8; j++) {
+        crc = (crc >>> 1) ^ (0xedb88320 & -(crc & 1));
+      }
+    }
+    return (crc ^ -1) >>> 0;
+  }
+
+  function writeUint16LE(target, value) {
+    target.push(value & 255, (value >>> 8) & 255);
+  }
+
+  function writeUint32LE(target, value) {
+    target.push(value & 255, (value >>> 8) & 255, (value >>> 16) & 255, (value >>> 24) & 255);
+  }
+
+  function createStoredZip(files) {
+    const encoder = new TextEncoder();
+    const chunks = [];
+    const central = [];
+    let offset = 0;
+
+    files.forEach(file => {
+      const nameBytes = encoder.encode(file.name);
+      const contentBytes = encoder.encode(file.content);
+      const checksum = crc32(contentBytes);
+      const localHeader = [];
+      writeUint32LE(localHeader, 0x04034b50);
+      writeUint16LE(localHeader, 20);
+      writeUint16LE(localHeader, 0);
+      writeUint16LE(localHeader, 0);
+      writeUint16LE(localHeader, 0);
+      writeUint16LE(localHeader, 0);
+      writeUint32LE(localHeader, checksum);
+      writeUint32LE(localHeader, contentBytes.length);
+      writeUint32LE(localHeader, contentBytes.length);
+      writeUint16LE(localHeader, nameBytes.length);
+      writeUint16LE(localHeader, 0);
+      chunks.push(new Uint8Array(localHeader), nameBytes, contentBytes);
+
+      const centralHeader = [];
+      writeUint32LE(centralHeader, 0x02014b50);
+      writeUint16LE(centralHeader, 20);
+      writeUint16LE(centralHeader, 20);
+      writeUint16LE(centralHeader, 0);
+      writeUint16LE(centralHeader, 0);
+      writeUint16LE(centralHeader, 0);
+      writeUint16LE(centralHeader, 0);
+      writeUint32LE(centralHeader, checksum);
+      writeUint32LE(centralHeader, contentBytes.length);
+      writeUint32LE(centralHeader, contentBytes.length);
+      writeUint16LE(centralHeader, nameBytes.length);
+      writeUint16LE(centralHeader, 0);
+      writeUint16LE(centralHeader, 0);
+      writeUint16LE(centralHeader, 0);
+      writeUint16LE(centralHeader, 0);
+      writeUint32LE(centralHeader, 0);
+      writeUint32LE(centralHeader, offset);
+      central.push(new Uint8Array(centralHeader), nameBytes);
+
+      offset += localHeader.length + nameBytes.length + contentBytes.length;
+    });
+
+    const centralOffset = offset;
+    const centralSize = central.reduce((sum, part) => sum + part.length, 0);
+    const end = [];
+    writeUint32LE(end, 0x06054b50);
+    writeUint16LE(end, 0);
+    writeUint16LE(end, 0);
+    writeUint16LE(end, files.length);
+    writeUint16LE(end, files.length);
+    writeUint32LE(end, centralSize);
+    writeUint32LE(end, centralOffset);
+    writeUint16LE(end, 0);
+    return new Blob([...chunks, ...central, new Uint8Array(end)], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    });
+  }
+
+  function getDraftWeekStyleIndex(dateIso) {
+    const date = new Date(`${dateIso}T00:00:00`);
+    if (Number.isNaN(date.getTime())) return 2;
+    const first = new Date(date.getFullYear(), date.getMonth(), 1);
+    const mondayOffset = (first.getDay() + 6) % 7;
+    const weekIndex = Math.floor((date.getDate() + mondayOffset - 1) / 7);
+    return 2 + (weekIndex % 5);
+  }
+
+  function formatDraftExcelDate(dateIso) {
+    const date = new Date(`${dateIso}T00:00:00`);
+    if (Number.isNaN(date.getTime())) return dateIso || "";
+    const weekendText = date.getDay() === 6 ? "周六" : (date.getDay() === 0 ? "周日" : "");
+    return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}${weekendText}`;
+  }
+
+  function inlineStringCell(ref, value, styleIndex) {
+    return `<c r="${ref}" s="${styleIndex}" t="inlineStr"><is><t>${escapeXml(value)}</t></is></c>`;
+  }
+
+  function departmentRichTextCell(ref, departments, styleIndex) {
+    const text = (departments || []).join("、");
+    if (!text.includes("景田北社区医院")) return inlineStringCell(ref, text, styleIndex);
+    const runs = text
+      .split(/(景田北社区医院)/g)
+      .filter(part => part !== "")
+      .map(part => part === "景田北社区医院"
+        ? `<r><rPr><color rgb="FFFF0000"/></rPr><t>${escapeXml(part)}</t></r>`
+        : `<r><t>${escapeXml(part)}</t></r>`)
+      .join("");
+    return `<c r="${ref}" s="${styleIndex}" t="inlineStr"><is>${runs}</is></c>`;
+  }
+
+  function createDutyDraftXlsxBlob(rows) {
+    const header = `<row r="1">
+      ${inlineStringCell("A1", "日期", 1)}
+      ${inlineStringCell("B1", "值班护长", 1)}
+      ${inlineStringCell("C1", "检查科室", 1)}
+    </row>`;
+    const bodyRows = rows.map((item, index) => {
+      const rowNumber = index + 2;
+      const styleIndex = getDraftWeekStyleIndex(item.date);
+      return `<row r="${rowNumber}" ht="22" customHeight="1">
+        ${inlineStringCell(`A${rowNumber}`, formatDraftExcelDate(item.date), styleIndex)}
+        ${inlineStringCell(`B${rowNumber}`, item.nurse || "", styleIndex)}
+        ${departmentRichTextCell(`C${rowNumber}`, item.departments || [], styleIndex)}
+      </row>`;
+    }).join("");
+    const sheetRows = `${header}${bodyRows}`;
+    const stylesXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
+  <fonts count="2">
+    <font><sz val="11"/><color rgb="FF000000"/><name val="Microsoft YaHei"/></font>
+    <font><b/><sz val="11"/><color rgb="FF000000"/><name val="Microsoft YaHei"/></font>
+  </fonts>
+  <fills count="8">
+    <fill><patternFill patternType="none"/></fill>
+    <fill><patternFill patternType="gray125"/></fill>
+    <fill><patternFill patternType="solid"><fgColor rgb="FFD9EAD3"/><bgColor indexed="64"/></patternFill></fill>
+    <fill><patternFill patternType="solid"><fgColor rgb="FFFCE4D6"/><bgColor indexed="64"/></patternFill></fill>
+    <fill><patternFill patternType="solid"><fgColor rgb="FFFFFFFF"/><bgColor indexed="64"/></patternFill></fill>
+    <fill><patternFill patternType="solid"><fgColor rgb="FFDDEBF7"/><bgColor indexed="64"/></patternFill></fill>
+    <fill><patternFill patternType="solid"><fgColor rgb="FFE2F0D9"/><bgColor indexed="64"/></patternFill></fill>
+    <fill><patternFill patternType="solid"><fgColor rgb="FFFFF2CC"/><bgColor indexed="64"/></patternFill></fill>
+  </fills>
+  <borders count="2">
+    <border><left/><right/><top/><bottom/><diagonal/></border>
+    <border><left style="thin"><color rgb="FF000000"/></left><right style="thin"><color rgb="FF000000"/></right><top style="thin"><color rgb="FF000000"/></top><bottom style="thin"><color rgb="FF000000"/></bottom><diagonal/></border>
+  </borders>
+  <cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>
+  <cellXfs count="7">
+    <xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>
+    <xf numFmtId="0" fontId="1" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1"><alignment horizontal="center" vertical="center"/></xf>
+    <xf numFmtId="0" fontId="0" fillId="3" borderId="1" xfId="0" applyFill="1" applyBorder="1"><alignment vertical="center" wrapText="1"/></xf>
+    <xf numFmtId="0" fontId="0" fillId="4" borderId="1" xfId="0" applyFill="1" applyBorder="1"><alignment vertical="center" wrapText="1"/></xf>
+    <xf numFmtId="0" fontId="0" fillId="5" borderId="1" xfId="0" applyFill="1" applyBorder="1"><alignment vertical="center" wrapText="1"/></xf>
+    <xf numFmtId="0" fontId="0" fillId="6" borderId="1" xfId="0" applyFill="1" applyBorder="1"><alignment vertical="center" wrapText="1"/></xf>
+    <xf numFmtId="0" fontId="0" fillId="7" borderId="1" xfId="0" applyFill="1" applyBorder="1"><alignment vertical="center" wrapText="1"/></xf>
+  </cellXfs>
+  <cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles>
+</styleSheet>`;
+    const files = [
+      {
+        name: "[Content_Types].xml",
+        content: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>`
+      },
+      {
+        name: "_rels/.rels",
+        content: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>`
+      },
+      {
+        name: "xl/workbook.xml",
+        content: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="下月排班草案" sheetId="1" r:id="rId1"/></sheets></workbook>`
+      },
+      {
+        name: "xl/_rels/workbook.xml.rels",
+        content: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>`
+      },
+      {
+        name: "xl/styles.xml",
+        content: stylesXml
+      },
+      {
+        name: "xl/worksheets/sheet1.xml",
+        content: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetViews><sheetView workbookViewId="0"/></sheetViews><cols><col min="1" max="1" width="16" customWidth="1"/><col min="2" max="2" width="14" customWidth="1"/><col min="3" max="3" width="70" customWidth="1"/></cols><sheetData>${sheetRows}</sheetData></worksheet>`
+      }
+    ];
+    return createStoredZip(files);
+  }
+
+  function exportDutyDraftToExcel() {
+    const drafts = Array.isArray(data.dutyDrafts) ? data.dutyDrafts : [];
+    if (!drafts.length) {
+      alert("暂无下月草案可导出。请先生成下月护长总值草案。");
+      return;
+    }
+    const monthLabel = drafts[0]?.date ? drafts[0].date.slice(0, 7) : "下月";
+    const rows = drafts
+      .slice()
+      .sort((a, b) => (a.date || "").localeCompare(b.date || ""))
+      .map(item => ({
+        date: item.date || "",
+        nurse: item.nurse || "",
+        departments: Array.isArray(item.departments) ? item.departments : []
+      }));
+    const blob = createDutyDraftXlsxBlob(rows);
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `${monthLabel}护长总值草案.xlsx`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+    setSyncStatus(`📱 ${monthLabel}护长总值草案Excel已导出`, "cloud");
   }
 
   function generateAndSaveNextMonthDutyDraft() {
@@ -2388,6 +2679,7 @@
     const storedWorkbench = readStoredWorkbenchData() || {};
     const nextWorkbench = {
       ...storedWorkbench,
+      ...data,
       tasks: Array.isArray(data.tasks) ? data.tasks : (Array.isArray(storedWorkbench.tasks) ? storedWorkbench.tasks : []),
       experts: Array.isArray(data.experts) ? data.experts : (Array.isArray(storedWorkbench.experts) ? storedWorkbench.experts : []),
       duty: currentDuty,
@@ -2405,6 +2697,7 @@
     })();
     localSyncCache = {
       ...savedMobile,
+      ...data,
       tasks: Array.isArray(data.tasks) ? data.tasks : (Array.isArray(savedMobile.tasks) ? savedMobile.tasks : []),
       experts: Array.isArray(data.experts) ? data.experts : (Array.isArray(savedMobile.experts) ? savedMobile.experts : []),
       duty: currentDuty,
@@ -2437,6 +2730,248 @@
 
   function getDutyConflictList(items) {
     return (items || []).map(getDutyConflict).filter(Boolean);
+  }
+
+  function findActiveDutyByNurse(nurse, monthPrefix) {
+    return (data.duty || [])
+      .filter(item =>
+        item.nurse === nurse &&
+        item.status !== "已归档" &&
+        (!monthPrefix || String(item.date || "").startsWith(monthPrefix))
+      )
+      .sort((a, b) => (a.date || "").localeCompare(b.date || ""));
+  }
+
+  function getSwapDutyMonth() {
+    const select = document.getElementById("swapDutyMonth");
+    if (!select) return "";
+    return select.value || "";
+  }
+
+  function refreshSwapDutyMonthOptions() {
+    const select = document.getElementById("swapDutyMonth");
+    if (!select) return;
+    const previous = select.value;
+    const months = [...new Set((data.duty || [])
+      .filter(item => item.status !== "已归档" && item.date)
+      .map(item => String(item.date).slice(0, 7)))]
+      .sort((a, b) => a.localeCompare(b));
+    if (!months.length) {
+      select.innerHTML = `<option value="">暂无可互换月份</option>`;
+      return;
+    }
+    const currentMonth = todayIso.slice(0, 7);
+    const defaultMonth = months.includes(currentMonth) ? currentMonth : months[months.length - 1];
+    select.innerHTML = months.map(m => {
+      const [year, month] = m.split("-");
+      return `<option value="${m}">${year}年${parseInt(month, 10)}月</option>`;
+    }).join("");
+    select.value = months.includes(previous) ? previous : defaultMonth;
+  }
+
+  function renderSwapDutyResult(messages = [], type = "local") {
+    const target = document.getElementById("swapDutyResult");
+    if (!target) return;
+    if (!messages.length) {
+      target.style.display = "none";
+      target.innerHTML = "";
+      return;
+    }
+    target.style.display = "";
+    target.innerHTML = messages.map(message => `<div>${escapeHtml(message)}</div>`).join("");
+  }
+
+  function replaceDutySwapNote(note, oldNurse) {
+    const base = String(note || "")
+      .split("；")
+      .map(item => item.trim())
+      .filter(item =>
+        item &&
+        !/^已与.+互换护长，检查科室未互换$/.test(item) &&
+        !/^已与.+护长互换排班，检查科室未互换$/.test(item)
+      )
+      .join("；");
+    const next = `已与${oldNurse || "原"}护长互换排班，检查科室未互换`;
+    return `${base}${base ? "；" : ""}${next}`;
+  }
+
+  function removeDutySwapNote(note) {
+    return String(note || "")
+      .split("；")
+      .map(item => item.trim())
+      .filter(item =>
+        item &&
+        !/^已与.+互换护长，检查科室未互换$/.test(item) &&
+        !/^已与.+护长互换排班，检查科室未互换$/.test(item)
+      )
+      .join("；");
+  }
+
+  function hasDutySwapNote(item) {
+    return /互换排班|互换护长/.test(String(item?.note || ""));
+  }
+
+  function hasDutyDepartmentAdjustmentNote(item) {
+    return /已调整检查科室|检查科室已调整|科室已调整/.test(String(item?.note || ""));
+  }
+
+  function appendUniqueDutyNote(note, text) {
+    const parts = String(note || "")
+      .split("；")
+      .map(item => item.trim())
+      .filter(Boolean);
+    if (!parts.includes(text)) parts.push(text);
+    return parts.join("；");
+  }
+
+  function sameDutyDepartments(a = [], b = []) {
+    if (a.length !== b.length) return false;
+    return a.every((item, index) => item === b[index]);
+  }
+
+  function getChangedDutyDepartments(before = [], after = []) {
+    return [...new Set(after.filter((department, index) => department && department !== before[index]))];
+  }
+
+  function renderDutyNurseCell(item) {
+    const nurse = escapeHtml(item.nurse || "");
+    return hasDutySwapNote(item)
+      ? `<span class="duty-swap-name">${nurse}</span>`
+      : nurse;
+  }
+
+  function renderDutyDepartmentsCell(item) {
+    const departments = item.departments || [];
+    if (!departments.length) return "暂未安排检查科室";
+    const adjusted = new Set(Array.isArray(item.adjustedDepartments) ? item.adjustedDepartments : []);
+    return departments.map(department => {
+      const text = escapeHtml(department);
+      return adjusted.has(department)
+        ? `<span class="duty-adjusted-department">${text}</span>`
+        : text;
+    }).join("、");
+  }
+
+  function cleanHistoricalSwapNotes() {
+    if (!confirm("确定清理所有护长总值安排里的历史互换备注吗？\n\n只会删除“已与某某互换护长/互换排班，检查科室未互换”这类备注，不会改动护长姓名、日期和检查科室。")) return;
+    let count = 0;
+    const now = new Date().toISOString();
+    data.duty = (data.duty || []).map(item => {
+      const cleaned = removeDutySwapNote(item.note);
+      if ((item.note || "") !== cleaned) {
+        count += 1;
+        return { ...item, note: cleaned, updatedAt: now };
+      }
+      return item;
+    });
+    saveDutyToMobile();
+    renderDuty();
+    renderDashboardDuty();
+    renderWeeklyDutyBoard();
+    renderSwapDutyResult(
+      count
+        ? [`已清理 ${count} 条历史互换备注。之后再进行护长互换，会写入最新正确备注。`]
+        : ["没有发现需要清理的历史互换备注。"],
+      "cloud"
+    );
+    setSyncStatus(count ? `📱 已清理 ${count} 条历史互换备注` : "📱 没有需要清理的历史互换备注", "cloud");
+  }
+
+  function refreshSwapDutyNurseOptions() {
+    const selects = [
+      document.getElementById("swapDutyNurseA"),
+      document.getElementById("swapDutyNurseB")
+    ].filter(Boolean);
+    if (!selects.length) return;
+    const currentValues = selects.map(select => select.value);
+    const monthPrefix = getSwapDutyMonth();
+    const nurses = [...new Set((data.duty || [])
+      .filter(item =>
+        item.status !== "已归档" &&
+        item.nurse &&
+        (!monthPrefix || String(item.date || "").startsWith(monthPrefix))
+      )
+      .sort((a, b) => (a.date || "").localeCompare(b.date || ""))
+      .map(item => item.nurse))];
+    selects.forEach((select, index) => {
+      select.innerHTML = `<option value="">请选择护长</option>${nurses.map(nurse => `<option value="${escapeHtml(nurse)}">${escapeHtml(nurse)}</option>`).join("")}`;
+      if (nurses.includes(currentValues[index])) select.value = currentValues[index];
+    });
+  }
+
+  function swapDutyNursesBetweenDates() {
+    const nurseA = document.getElementById("swapDutyNurseA").value;
+    const nurseB = document.getElementById("swapDutyNurseB").value;
+    const monthPrefix = getSwapDutyMonth();
+    renderSwapDutyResult();
+    if (!monthPrefix) {
+      alert("请先选择需要互换的月份。");
+      return;
+    }
+    if (!nurseA || !nurseB) {
+      alert("请先选择两位需要互换排班的护长。");
+      return;
+    }
+    if (nurseA === nurseB) {
+      alert("两位护长不能相同。");
+      return;
+    }
+    const dutiesA = findActiveDutyByNurse(nurseA, monthPrefix);
+    const dutiesB = findActiveDutyByNurse(nurseB, monthPrefix);
+    if (!dutiesA.length || !dutiesB.length) {
+      alert(`所选护长中有人在 ${monthPrefix} 没有正式护长总值安排，或相关安排已归档。`);
+      return;
+    }
+    const datesA = dutiesA.map(item => item.date).join("、");
+    const datesB = dutiesB.map(item => item.date).join("、");
+    const [year, month] = monthPrefix.split("-");
+    if (!confirm(`确认互换 ${year}年${parseInt(month, 10)}月 这两位护长的排班吗？\n\n仅互换该月份内的排班，其他月份不受影响。\n\n${nurseA} 当前日期：${datesA}\n${nurseB} 当前日期：${datesB}\n\n互换后只改变护长姓名，检查科室仍保留在原日期。`)) return;
+
+    const idsA = new Set(dutiesA.map(item => item.id));
+    const idsB = new Set(dutiesB.map(item => item.id));
+
+    data.duty = data.duty.map(item => {
+      if (idsA.has(item.id)) {
+        return {
+          ...item,
+          nurse: nurseB,
+          note: replaceDutySwapNote(item.note, nurseA),
+          updatedAt: new Date().toISOString()
+        };
+      }
+      if (idsB.has(item.id)) {
+        return {
+          ...item,
+          nurse: nurseA,
+          note: replaceDutySwapNote(item.note, nurseB),
+          updatedAt: new Date().toISOString()
+        };
+      }
+      return item;
+    }).sort((a, b) => (a.date || "").localeCompare(b.date || ""));
+
+    const affectedIds = new Set([...idsA, ...idsB]);
+    const affected = (data.duty || []).filter(item => affectedIds.has(item.id));
+    const conflicts = getDutyConflictList(affected);
+    saveDutyToMobile();
+    renderDuty();
+    renderDashboardDuty();
+    renderWeeklyDutyBoard();
+    if (conflicts.length) {
+      renderSwapDutyResult([
+        `已完成 ${year}年${parseInt(month, 10)}月 互换，但发现本人科室冲突，请微调检查科室：`,
+        ...conflicts
+      ], "error");
+      setSyncStatus("📱 护长已互换，存在本人科室冲突需微调", "error");
+      alert(`护长已互换，但存在本人科室冲突：\n\n${conflicts.join("\n")}\n\n请进入对应日期编辑检查科室。`);
+    } else {
+      renderSwapDutyResult([
+        `已完成 ${year}年${parseInt(month, 10)}月 互换：${nurseA} 与 ${nurseB} 的排班已互换。`,
+        `${nurseA} 原日期：${datesA}；${nurseB} 原日期：${datesB}。`,
+        "未发现本人科室冲突，其他月份排班未受影响。"
+      ], "cloud");
+      setSyncStatus("📱 护长互换已保存，未发现本人科室冲突", "cloud");
+    }
   }
 
   function getNextMonthInfo() {
@@ -2646,6 +3181,15 @@
     return draft;
   }
 
+  function toggleDutyManualForm(open) {
+    const form = document.getElementById("dutyManualForm");
+    const button = document.getElementById("toggleDutyManualFormBtn");
+    if (!form) return;
+    const shouldOpen = typeof open === "boolean" ? open : form.style.display === "none";
+    form.style.display = shouldOpen ? "grid" : "none";
+    if (button) button.textContent = shouldOpen ? "收起手动编辑" : "展开手动编辑";
+  }
+
   function resetDutyForm() {
     editingDutyId = null;
     document.getElementById("addDutyBtn").textContent = "保存护长总值安排";
@@ -2656,11 +3200,13 @@
     document.getElementById("dutyStatus").value = "待发送";
     document.getElementById("dutyDepartments").value = "";
     document.getElementById("dutyNote").value = "";
+    toggleDutyManualForm(false);
   }
 
   function startEditDuty(id) {
     const item = data.duty.find(d => d.id === id);
     if (!item) return;
+    toggleDutyManualForm(true);
     editingDutyId = id;
     document.getElementById("addDutyBtn").textContent = "保存修改";
     document.getElementById("cancelDutyEditBtn").style.display = "block";
@@ -3075,6 +3621,15 @@
     const date = document.getElementById("dutyDate").value || todayIso;
     const nurse = document.getElementById("dutyNurse").value.trim();
     const departments = parseDepartments(document.getElementById("dutyDepartments").value);
+    const previousDuty = editingDutyId ? data.duty.find(d => d.id === editingDutyId) : null;
+    let note = document.getElementById("dutyNote").value.trim();
+    const departmentsChanged = previousDuty && !sameDutyDepartments(previousDuty.departments || [], departments);
+    const adjustedDepartments = departmentsChanged
+      ? getChangedDutyDepartments(previousDuty.departments || [], departments)
+      : (Array.isArray(previousDuty?.adjustedDepartments) ? previousDuty.adjustedDepartments : []);
+    if (departmentsChanged) {
+      note = appendUniqueDutyNote(note, "已调整检查科室");
+    }
     if (!nurse && !departments.length) {
       alert("请至少填写值班护士长或检查科室。");
       return;
@@ -3087,7 +3642,8 @@
       holiday: document.getElementById("dutyHoliday").value === "true",
       status: document.getElementById("dutyStatus").value,
       departments,
-      note: document.getElementById("dutyNote").value.trim(),
+      adjustedDepartments,
+      note,
       updatedAt: new Date().toISOString()
     };
 
@@ -3107,14 +3663,24 @@
     saveDutyToMobile();
     resetDutyForm();
     renderDuty();
+    renderDashboardDuty();
+    renderWeeklyDutyBoard();
   });
 
   document.getElementById("cancelDutyEditBtn").addEventListener("click", resetDutyForm);
+  document.getElementById("toggleDutyManualFormBtn").addEventListener("click", () => toggleDutyManualForm());
   document.getElementById("dutyFilterArchive").addEventListener("change", renderDuty);
+  document.getElementById("swapDutyMonth").addEventListener("change", () => {
+    refreshSwapDutyNurseOptions();
+    renderSwapDutyResult();
+  });
+  document.getElementById("swapDutyNurseBtn").addEventListener("click", swapDutyNursesBetweenDates);
+  document.getElementById("cleanSwapNotesBtn").addEventListener("click", cleanHistoricalSwapNotes);
   document.getElementById("importJulyActualDutyBtn").addEventListener("click", importJulyActualDutySchedule);
   document.getElementById("importAugustDutyBtn").addEventListener("click", importAugustDutySchedule);
   document.getElementById("generateNextMonthDraftBtn").addEventListener("click", generateAndSaveNextMonthDutyDraft);
   document.getElementById("confirmDutyDraftBtn").addEventListener("click", confirmDutyDraftToOfficial);
+  document.getElementById("exportDutyDraftExcelBtn").addEventListener("click", exportDutyDraftToExcel);
   document.getElementById("clearDutyDraftBtn").addEventListener("click", clearDutyDraft);
 
   document.getElementById("copyDutyBtn").addEventListener("click", async () => {
@@ -3144,7 +3710,7 @@
     if (confirm("是否仅在本机恢复示例数据？这不会写入云端，适合演示或临时查看。")) {
       data = structuredClone(defaultData);
       data.dutyDrafts = [];
-      localSyncCache = { tasks: data.tasks || [], experts: data.experts || [], duty: data.duty || [], dutyDrafts: [] };
+      localSyncCache = structuredClone(data);
       saveLocalSyncCache().catch(error => console.warn("示例数据保存失败：", error));
       saveLocalData();
       setSyncStatus("⭐ 已恢复本地示例数据，未写入云端", "local");
@@ -3157,12 +3723,7 @@
       app: "鹿星工作台手机本地版",
       version: 1,
       exportedAt: new Date().toISOString(),
-      data: {
-        tasks: data.tasks || [],
-        experts: data.experts || [],
-        duty: data.duty || [],
-        dutyDrafts: data.dutyDrafts || []
-      }
+      data: normalizeWorkbenchData({ ...data })
     };
     const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
@@ -3194,11 +3755,8 @@
           event.target.value = "";
           return;
         }
-        data.tasks = tasks;
-        data.experts = experts;
-        data.duty = duty;
-        data.dutyDrafts = dutyDrafts;
-        localSyncCache = { tasks, experts, duty: data.duty, dutyDrafts };
+        data = normalizeWorkbenchData({ ...imported, tasks, experts, duty, dutyDrafts });
+        localSyncCache = structuredClone(data);
         localStorage.setItem(MOBILE_DATA_KEY, JSON.stringify(localSyncCache));
         saveLocalData();
         render();
@@ -3222,16 +3780,14 @@
     } catch (error) {
       console.error(error);
       const storedWorkbench = readStoredWorkbenchData() || {};
-      localSyncCache = {
+      localSyncCache = normalizeWorkbenchData({
+        ...storedWorkbench,
         tasks: Array.isArray(storedWorkbench.tasks) ? storedWorkbench.tasks : [],
         experts: Array.isArray(storedWorkbench.experts) ? storedWorkbench.experts : [],
         duty: Array.isArray(storedWorkbench.duty) ? storedWorkbench.duty : [],
         dutyDrafts: Array.isArray(storedWorkbench.dutyDrafts) ? storedWorkbench.dutyDrafts : []
-      };
-      data.tasks = localSyncCache.tasks;
-      data.experts = localSyncCache.experts;
-      data.duty = localSyncCache.duty;
-      data.dutyDrafts = localSyncCache.dutyDrafts;
+      });
+      data = structuredClone(localSyncCache);
       cloudReady = true;
       try {
         localStorage.setItem(MOBILE_DATA_KEY, JSON.stringify(localSyncCache));
