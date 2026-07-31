@@ -1,4 +1,4 @@
-const CACHE_NAME = "deer-star-mobile-local-v39";
+const CACHE_NAME = "deer-star-mobile-local-v40";
 
 const APP_ASSETS = [
   "./index.html",
@@ -11,17 +11,14 @@ const APP_ASSETS = [
 self.addEventListener("install", event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(async cache => {
-      // 逐个缓存，单个失败不影响其他资源
       await Promise.all(
         APP_ASSETS.map(url =>
           cache.add(url).catch(err => console.warn("[SW] 缓存失败:", url, err.message))
         )
       );
-      // 额外把当前导航页面也缓存一份
-      const rootReq = new Request("./index.html");
-      await cache.add(rootReq).catch(() => {});
     })
   );
+  // 立即激活，跳过等待
   self.skipWaiting();
 });
 
@@ -30,12 +27,18 @@ self.addEventListener("activate", event => {
     caches.keys().then(keys =>
       Promise.all(
         keys
-          .filter(key => key.startsWith("deer-star-mobile-local-") && key !== CACHE_NAME)
-          .map(key => caches.delete(key))
+          // 删除所有旧缓存，不管版本号
+          .filter(key => key !== CACHE_NAME)
+          .map(key => {
+            console.log("[SW] 删除旧缓存:", key);
+            return caches.delete(key);
+          })
       )
-    )
+    ).then(() => {
+      // 立即接管所有客户端
+      return self.clients.claim();
+    })
   );
-  self.clients.claim();
 });
 
 self.addEventListener("fetch", event => {
@@ -47,39 +50,30 @@ self.addEventListener("fetch", event => {
 
   if (!isSameOrigin) return;
 
-  // 导航请求：缓存优先 + 后台静默更新
-  // 这样即使网络断开（如医院 WiFi 限制），也能立即从缓存加载页面
+  // 导航请求：网络优先（确保拿到最新版本），失败时回退缓存
   if (isNavigation) {
     event.respondWith(
-      caches.open(CACHE_NAME).then(cache =>
-        cache.match("./index.html").then(cachedResponse => {
-          // 后台静默更新（不阻塞当前请求）
-          const fetchPromise = fetch(event.request)
-            .then(networkResponse => {
-              if (networkResponse && networkResponse.ok) {
-                cache.put("./index.html", networkResponse.clone());
-              }
-              return networkResponse;
-            })
-            .catch(() => null);
-
-          // 有缓存就立即返回缓存，没有才等网络
-          if (cachedResponse) {
-            return cachedResponse;
+      fetch(event.request)
+        .then(response => {
+          if (response && response.ok) {
+            const copy = response.clone();
+            caches.open(CACHE_NAME).then(cache => cache.put("./index.html", copy));
           }
-          return fetchPromise.then(
-            response => response || new Response("页面加载中，请稍后重试...", {
-              status: 503,
-              headers: { "Content-Type": "text/html; charset=utf-8" }
-            })
-          );
+          return response;
         })
-      )
+        .catch(() =>
+          caches.open(CACHE_NAME).then(cache =>
+            cache.match("./index.html").then(cached => cached || new Response(
+              '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>加载中</title></head><body style="font-family:sans-serif;padding:40px;text-align:center;"><h2>正在加载，请稍候...</h2><p>如果长时间无响应，请检查网络后刷新页面。</p></body></html>',
+              { status: 200, headers: { "Content-Type": "text/html; charset=utf-8" } }
+            ))
+          )
+        )
     );
     return;
   }
 
-  // 静态资源：缓存优先，缓存未命中时走网络
+  // 静态资源：缓存优先
   event.respondWith(
     caches.match(event.request).then(cached => {
       if (cached) return cached;
