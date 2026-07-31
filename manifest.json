@@ -1,0 +1,25 @@
+{
+  "name": "鹿⭐星星人的工作台｜手机本地版",
+  "short_name": "鹿星本地",
+  "description": "手机本地保存的个人工作台：日程提醒、三名工程、护长总值、不良事件、压力性损伤、专科小组和党务工作。",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#fff8df",
+  "theme_color": "#f3b737",
+  "icons": [
+    {
+      "src": "assets/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "assets/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

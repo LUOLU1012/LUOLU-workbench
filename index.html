@@ -1,0 +1,3283 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#f3b737">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="鹿星工作台">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="assets/icon-192.png">
+<title>鹿⭐星星人的工作台｜手机本地版</title>
+<style>
+  :root {
+    --bg: #fff8df;
+    --panel: rgba(255, 253, 244, 0.86);
+    --panel-soft: #fff1c9;
+    --text: #40364f;
+    --muted: #8a7a69;
+    --line: rgba(168, 140, 79, 0.22);
+    --brand: #f3b737;
+    --brand-soft: #fff0ba;
+    --brand-dark: #7255a3;
+    --green: #8da978;
+    --amber: #cf9227;
+    --red: #c56f72;
+    --star: #ffd45f;
+    --rose: #f0b5a6;
+    --sage: #b8bf9d;
+    --violet: #7560a8;
+    --night: #4a3b73;
+    --radius: 18px;
+    --shadow: 0 18px 42px rgba(156, 111, 22, 0.14);
+    font-family: "Microsoft YaHei", "PingFang SC", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    background:
+      radial-gradient(circle at 12% 10%, rgba(255, 212, 95, 0.58), transparent 20%),
+      radial-gradient(circle at 82% 14%, rgba(117, 96, 168, 0.18), transparent 24%),
+      radial-gradient(circle at 74% 86%, rgba(240, 181, 166, 0.24), transparent 28%),
+      linear-gradient(135deg, #fff7dc 0%, #fffaf1 45%, #f3ecff 100%);
+    color: var(--text);
+  }
+
+  .app {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    min-height: 100vh;
+  }
+
+  .sidebar {
+    background:
+      radial-gradient(circle at 70% 10%, rgba(255, 212, 95, 0.48), transparent 24%),
+      radial-gradient(circle at 18% 86%, rgba(240, 181, 166, 0.26), transparent 24%),
+      linear-gradient(180deg, #4b3b75 0%, #66558f 52%, #7b689a 100%);
+    color: #fff9e8;
+    padding: 28px 20px;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  .sidebar::before,
+  .sidebar::after {
+    content: "★";
+    position: absolute;
+    color: rgba(255, 212, 95, 0.86);
+    font-size: 28px;
+    transform: rotate(12deg);
+  }
+
+  .sidebar::before {
+    right: 28px;
+    top: 86px;
+  }
+
+  .sidebar::after {
+    left: 34px;
+    bottom: 42px;
+    font-size: 20px;
+  }
+
+  .logo {
+    margin-bottom: 28px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .logo h1 {
+    font-size: 24px;
+    line-height: 1.35;
+    margin: 0 0 8px;
+    letter-spacing: 0.02em;
+  }
+
+  .logo p {
+    color: rgba(255, 255, 255, 0.68);
+    margin: 0;
+    font-size: 13px;
+  }
+
+  .brand-card {
+    background:
+      radial-gradient(circle at 84% 18%, rgba(255, 212, 95, 0.32), transparent 24%),
+      rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 249, 232, 0.24);
+    border-radius: 24px;
+    padding: 16px;
+    margin-bottom: 18px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .brand-mark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 999px;
+    background: rgba(255, 212, 95, 0.20);
+    margin-bottom: 10px;
+    font-size: 28px;
+    box-shadow: inset 0 0 0 1px rgba(255, 249, 232, 0.22);
+  }
+
+  .star-person {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    vertical-align: middle;
+    margin: 0 2px;
+  }
+
+  .star-person span {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 999px;
+    background: rgba(255, 212, 95, 0.24);
+    color: #ffe49b;
+    font-size: 15px;
+    line-height: 1;
+  }
+
+  .star-person .face {
+    color: #fff7d4;
+    font-size: 13px;
+  }
+
+  .star-word {
+    color: #ffe49b;
+  }
+
+  .nav {
+    display: grid;
+    gap: 8px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .nav button {
+    border: 0;
+    border-radius: 999px;
+    padding: 12px 14px;
+    text-align: left;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.78);
+    cursor: pointer;
+    font-size: 15px;
+  }
+
+  .nav-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 8px;
+  }
+
+  .nav-label {
+    vertical-align: middle;
+  }
+
+  .nav button.active,
+  .nav button:hover {
+    background: rgba(255, 255, 255, 0.18);
+    color: #ffffff;
+  }
+
+  .main {
+    padding: 28px;
+  }
+
+  .topbar {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    align-items: flex-start;
+    margin-bottom: 20px;
+  }
+
+  .topbar h2 {
+    margin: 0 0 8px;
+    font-size: 28px;
+    color: var(--night);
+  }
+
+  .topbar p {
+    margin: 0;
+    color: var(--muted);
+  }
+
+  .sync-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 10px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: rgba(255, 240, 186, 0.82);
+    color: #6a4a10;
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  .sync-status.cloud {
+    background: #edf4ea;
+    color: var(--green);
+  }
+
+  .sync-status.local {
+    background: #fbf0d5;
+    color: var(--amber);
+  }
+
+  .sync-status.error {
+    background: #f8e9eb;
+    color: var(--red);
+  }
+
+  .actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  button.primary,
+  button.secondary,
+  button.ghost {
+    border: 0;
+    border-radius: 12px;
+    padding: 10px 14px;
+    cursor: pointer;
+    font-size: 14px;
+  }
+
+  button.primary {
+    background: var(--brand);
+    color: #473516;
+    box-shadow: 0 10px 24px rgba(243, 183, 55, 0.28);
+    font-weight: 700;
+  }
+
+  button.secondary {
+    background: #efe6ff;
+    color: var(--brand-dark);
+  }
+
+  button.ghost {
+    background: var(--panel-soft);
+    color: var(--text);
+  }
+
+  .grid {
+    display: grid;
+    gap: 16px;
+  }
+
+  .cards {
+    grid-template-columns: repeat(4, minmax(160px, 1fr));
+  }
+
+  .two {
+    grid-template-columns: 1.2fr 0.8fr;
+  }
+
+  .three {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 18px;
+    backdrop-filter: blur(14px);
+  }
+
+  .metric .label {
+    color: var(--muted);
+    font-size: 13px;
+    margin-bottom: 10px;
+  }
+
+  .metric .value {
+    font-size: 30px;
+    font-weight: 700;
+    color: var(--night);
+  }
+
+  .metric .hint {
+    color: var(--muted);
+    font-size: 13px;
+    margin-top: 8px;
+  }
+
+  .section-title {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    align-items: center;
+    margin-bottom: 14px;
+  }
+
+  .section-title h3 {
+    margin: 0;
+    font-size: 18px;
+  }
+
+  .section-title span {
+    color: var(--muted);
+    font-size: 13px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+
+  th,
+  td {
+    border-bottom: 1px solid var(--line);
+    padding: 12px 10px;
+    text-align: left;
+    vertical-align: top;
+  }
+
+  th {
+    color: var(--muted);
+    font-weight: 600;
+    background: rgba(246, 241, 248, 0.74);
+  }
+
+  tr:last-child td {
+    border-bottom: 0;
+  }
+
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    padding: 4px 9px;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+
+  .tag.high {
+    background: #f8e9eb;
+    color: var(--red);
+  }
+
+  .tag.mid {
+    background: #fbf0d5;
+    color: var(--amber);
+  }
+
+  .tag.low {
+    background: #edf4ea;
+    color: var(--green);
+  }
+
+  .tag.state {
+    background: var(--brand-soft);
+    color: #6a4a10;
+  }
+
+  .form {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+  }
+
+  .field {
+    display: grid;
+    gap: 6px;
+  }
+
+  .field.full {
+    grid-column: 1 / -1;
+  }
+
+  label {
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  input,
+  select,
+  textarea {
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size: 14px;
+    font-family: inherit;
+    color: var(--text);
+    background: rgba(255, 255, 255, 0.82);
+  }
+
+  textarea {
+    min-height: 84px;
+    resize: vertical;
+  }
+
+  .page {
+    display: none;
+  }
+
+  .page.active {
+    display: grid;
+    gap: 16px;
+  }
+
+  .mobile-hero {
+    display: none;
+  }
+
+  #dashboard.active {
+    position: relative;
+    padding: 20px;
+    border: 1px solid rgba(255, 212, 95, 0.34);
+    border-radius: 28px;
+    background:
+      linear-gradient(135deg, rgba(255, 248, 223, 0.74), rgba(243, 236, 255, 0.66)),
+      url("assets/star_person_home.png") center center / cover no-repeat;
+    box-shadow: 0 22px 54px rgba(74, 59, 115, 0.16);
+    overflow: hidden;
+  }
+
+  #dashboard.active::before {
+    content: "★";
+    position: absolute;
+    right: 28px;
+    top: 20px;
+    color: rgba(255, 212, 95, 0.82);
+    font-size: 34px;
+    text-shadow: 0 8px 18px rgba(74, 59, 115, 0.16);
+    pointer-events: none;
+  }
+
+  #dashboard .card {
+    background: rgba(255, 253, 244, 0.82);
+    border-color: rgba(255, 255, 255, 0.64);
+  }
+
+  .todo-list {
+    display: grid;
+    gap: 10px;
+  }
+
+  .todo {
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 14px;
+    background: rgba(255, 255, 255, 0.74);
+    display: grid;
+    gap: 8px;
+  }
+
+  .todo-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .todo-title {
+    font-weight: 700;
+  }
+
+  .todo-meta {
+    color: var(--muted);
+    font-size: 13px;
+  }
+
+  .bar-row {
+    display: grid;
+    grid-template-columns: 120px 1fr 52px;
+    align-items: center;
+    gap: 10px;
+    margin: 12px 0;
+    font-size: 14px;
+  }
+
+  .bar {
+    background: var(--panel-soft);
+    border-radius: 999px;
+    height: 12px;
+    overflow: hidden;
+  }
+
+  .bar span {
+    display: block;
+    height: 100%;
+    background: linear-gradient(90deg, var(--brand), var(--rose));
+    border-radius: 999px;
+  }
+
+  .copybox {
+    white-space: pre-wrap;
+    background:
+      radial-gradient(circle at 92% 12%, rgba(255, 212, 95, 0.24), transparent 22%),
+      #4b3b75;
+    color: #fffaf7;
+    border-radius: 14px;
+    padding: 16px;
+    line-height: 1.7;
+    font-size: 14px;
+  }
+
+  .prompt {
+    background: rgba(250, 247, 252, 0.86);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 14px;
+    line-height: 1.75;
+    white-space: pre-wrap;
+  }
+
+  .empty {
+    color: var(--muted);
+    background: rgba(250, 247, 252, 0.72);
+    border: 1px dashed var(--line);
+    border-radius: 14px;
+    padding: 18px;
+    text-align: center;
+  }
+
+  @media (max-width: 1100px) {
+    .app {
+      grid-template-columns: 1fr;
+    }
+
+    .sidebar {
+      height: auto;
+      position: static;
+    }
+
+    .nav {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .cards,
+    .two,
+    .three,
+    .form {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 760px) {
+    body {
+      min-width: 0;
+      background:
+        radial-gradient(circle at 12% 8%, rgba(255, 212, 95, 0.50), transparent 24%),
+        linear-gradient(135deg, #fff8df 0%, #fffaf1 50%, #f2eaff 100%);
+    }
+
+    .app {
+      grid-template-columns: 76px minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      padding: 10px 8px;
+      overflow-y: auto;
+      border-right: 1px solid rgba(255, 249, 232, 0.24);
+    }
+
+    .sidebar::before {
+      right: 12px;
+      top: 56px;
+      font-size: 18px;
+    }
+
+    .sidebar::after {
+      left: 16px;
+      bottom: 18px;
+      font-size: 15px;
+    }
+
+    .logo {
+      margin-bottom: 12px;
+    }
+
+    .logo > p {
+      display: none;
+    }
+
+    .brand-card {
+      padding: 8px;
+      margin-bottom: 10px;
+      border-radius: 20px;
+      text-align: center;
+    }
+
+    .brand-mark {
+      width: 42px;
+      height: 42px;
+      margin: 0 auto 6px;
+      font-size: 24px;
+    }
+
+    .brand-card h1 {
+      font-size: 11px;
+      line-height: 1.25;
+      margin: 0;
+    }
+
+    .brand-card p,
+    .star-person,
+    .star-word {
+      display: none;
+    }
+
+    .nav {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .nav button {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 60px;
+      min-height: 66px;
+      padding: 7px 4px;
+      border-radius: 18px;
+      text-align: center;
+      font-size: 11px;
+      line-height: 1.2;
+      color: rgba(255, 249, 232, 0.82);
+    }
+
+    .nav button.active,
+    .nav button:hover {
+      background: rgba(255, 249, 232, 0.22);
+      box-shadow: inset 0 0 0 1px rgba(255, 249, 232, 0.18);
+    }
+
+    .nav-icon {
+      width: 34px;
+      height: 34px;
+      margin: 0 0 4px 0;
+      border-radius: 14px;
+      background: rgba(255, 249, 232, 0.18);
+      font-size: 18px;
+    }
+
+    .main {
+      min-width: 0;
+      padding: 12px 10px 20px;
+    }
+
+    .topbar {
+      display: block;
+      margin-bottom: 12px;
+      padding: 12px;
+      border-radius: 22px;
+      background: rgba(255, 253, 244, 0.72);
+      border: 1px solid rgba(255, 255, 255, 0.64);
+      box-shadow: 0 12px 30px rgba(74, 59, 115, 0.10);
+      backdrop-filter: blur(14px);
+    }
+
+    .topbar h2 {
+      font-size: 19px;
+      line-height: 1.3;
+      margin-bottom: 6px;
+    }
+
+    .topbar p {
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .actions {
+      margin-top: 10px;
+      gap: 8px;
+    }
+
+    button.primary,
+    button.secondary,
+    button.ghost {
+      padding: 8px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+    }
+
+    .page.active {
+      gap: 12px;
+    }
+
+    #dashboard.active {
+      padding: 12px;
+      border-radius: 26px;
+      background:
+        linear-gradient(135deg, rgba(255, 248, 223, 0.56), rgba(243, 236, 255, 0.50)),
+        url("assets/star_person_home.png") center top / cover no-repeat;
+    }
+
+    #dashboard.active::before {
+      right: 18px;
+      top: 14px;
+      font-size: 26px;
+    }
+
+    .mobile-hero {
+      display: block;
+      min-height: 176px;
+      padding: 18px;
+      border-radius: 26px;
+      background: rgba(255, 253, 244, 0.76);
+      border: 1px solid rgba(255, 255, 255, 0.70);
+      box-shadow: 0 14px 32px rgba(74, 59, 115, 0.12);
+      backdrop-filter: blur(16px);
+    }
+
+    .mobile-hero .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--brand-dark);
+      font-weight: 700;
+      font-size: 13px;
+      margin-bottom: 12px;
+    }
+
+    .mobile-hero h3 {
+      margin: 0 0 12px;
+      color: var(--text);
+      font-size: 22px;
+      line-height: 1.25;
+    }
+
+    .mobile-hero p {
+      margin: 0;
+      color: #6a5b4c;
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    .cards,
+    .two,
+    .three,
+    .form {
+      grid-template-columns: 1fr;
+    }
+
+    .card {
+      padding: 14px;
+      border-radius: 22px;
+      box-shadow: 0 12px 28px rgba(74, 59, 115, 0.10);
+    }
+
+    .metric {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .metric .label {
+      margin: 0;
+      font-size: 12px;
+    }
+
+    .metric .value {
+      grid-row: span 2;
+      font-size: 25px;
+    }
+
+    .metric .hint {
+      margin: 0;
+      font-size: 12px;
+    }
+
+    .section-title {
+      align-items: flex-start;
+    }
+
+    .section-title h3 {
+      font-size: 16px;
+    }
+
+    table {
+      font-size: 12px;
+    }
+
+    th,
+    td {
+      padding: 9px 7px;
+    }
+
+    .todo {
+      border-radius: 18px;
+      padding: 12px;
+    }
+
+    .todo-head {
+      align-items: flex-start;
+    }
+
+    .copybox,
+    .prompt {
+      font-size: 13px;
+      border-radius: 18px;
+    }
+  }
+
+  .login-screen {
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    padding: 20px;
+    background:
+      radial-gradient(circle at 18% 10%, rgba(255, 212, 95, 0.58), transparent 22%),
+      linear-gradient(135deg, #fff7dc 0%, #fffaf1 48%, #f3ecff 100%);
+  }
+
+  .login-card {
+    width: min(420px, 100%);
+    background: rgba(255, 253, 244, 0.88);
+    border: 1px solid rgba(255, 255, 255, 0.68);
+    border-radius: 28px;
+    box-shadow: var(--shadow);
+    padding: 24px;
+    backdrop-filter: blur(18px);
+  }
+
+  .login-card h2 {
+    margin: 0 0 8px;
+    font-size: 24px;
+  }
+
+  .login-card p {
+    margin: 0 0 18px;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+
+  .login-error {
+    display: none;
+    margin-top: 12px;
+    padding: 10px 12px;
+    border-radius: 14px;
+    background: #f8e9eb;
+    color: var(--red);
+    font-size: 13px;
+  }
+</style>
+</head>
+<body>
+
+<div class="login-screen" id="loginScreen">
+  <div class="login-card">
+    <h2>鹿⭐星星人的工作台</h2>
+    <p>手机本地版已启用密码保护。数据只保存在本手机浏览器/PWA 本地。</p>
+    <div class="field">
+      <label>登录密码</label>
+      <input id="loginPassword" type="password" autocomplete="current-password" placeholder="请输入登录密码">
+    </div>
+    <button class="primary" id="loginBtn" style="margin-top: 12px; width: 100%;">进入工作台</button>
+    <div class="login-error" id="loginError"></div>
+  </div>
+</div>
+
+<div class="app" id="appShell" style="display: none;">
+  <aside class="sidebar">
+    <div class="logo">
+      <div class="brand-card">
+        <div class="brand-mark">⭐</div>
+        <h1>鹿<span class="star-person" aria-label="星星人"></span><span class="star-word">星人</span>的工作台</h1>
+        <p>把繁杂工作收进一颗小星球里</p>
+      </div>
+      <p>手机本地保存，不上传云端；适合在医院用手机个人网络或离线记录脱敏工作事项。</p>
+    </div>
+    <nav class="nav">
+      <button class="active" data-page="dashboard" data-title="日程提醒"><span class="nav-icon">🌙</span><span class="nav-label">日程提醒</span></button>
+      <button data-page="expert" data-title="三名工程"><span class="nav-icon">⭐</span><span class="nav-label">三名工程</span></button>
+      <button data-page="duty" data-title="护长总值"><span class="nav-icon">👜</span><span class="nav-label">护长总值</span></button>
+      <button data-page="events" data-title="不良事件"><span class="nav-icon">📊</span><span class="nav-label">不良事件</span></button>
+      <button data-page="pressure" data-title="压力性损伤"><span class="nav-icon">🩹</span><span class="nav-label">压力性损伤</span></button>
+      <button data-page="specialist" data-title="专科小组"><span class="nav-icon">📚</span><span class="nav-label">专科小组</span></button>
+      <button data-page="party" data-title="党务工作"><span class="nav-icon">📁</span><span class="nav-label">党务工作</span></button>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div>
+        <h2 id="pageTitle">鹿⭐星星人的工作台｜手机本地版｜日程提醒</h2>
+        <p id="todayText"></p>
+        <div class="sync-status local" id="syncStatus">⭐ 正在打开手机本地工作台</div>
+      </div>
+      <div class="actions">
+        <button class="secondary" id="seedBtn">恢复示例数据</button>
+        <button class="ghost" id="exportBtn">导出备份</button>
+        <button class="ghost" id="importBtn">导入恢复</button>
+        <input id="importFile" type="file" accept="application/json,.json" style="display: none;">
+        <button class="ghost" id="logoutBtn">退出登录</button>
+      </div>
+    </div>
+
+    <section class="page active" id="dashboard">
+      <div class="mobile-hero">
+        <div class="eyebrow">⭐ 今日桌面</div>
+        <h3>今天也要把护理部工作整理成一颗小星球。</h3>
+        <p>先看今日待办，再处理高优先级事项。被会议打断也没关系，回来就看“下一步动作”。</p>
+      </div>
+      <div class="card" style="border-color: rgba(207, 82, 99, 0.24); background: rgba(255, 247, 235, 0.82);">
+        <div class="section-title">
+          <h3>隐私提醒</h3>
+          <span>手机本地保存</span>
+        </div>
+        <p>请只记录脱敏工作事项，不录入患者姓名、住院号、身份证号、电话、完整病历内容或可反推出身份的信息。需要保存佐证材料时，建议只写材料名称和存放位置。</p>
+      </div>
+      <div class="card" style="border-color: rgba(243, 183, 55, 0.4); background: rgba(255, 249, 229, 0.9);">
+        <div class="section-title">
+          <h3>今日护长总值</h3>
+          <span id="dashboardDutyStatus">待安排</span>
+        </div>
+        <div id="dashboardDutyCard"></div>
+      </div>
+      <div class="grid cards">
+        <div class="card metric">
+          <div class="label">今日待办</div>
+          <div class="value" id="mToday">0</div>
+          <div class="hint">建议早上先处理高优先级事项</div>
+        </div>
+        <div class="card metric">
+          <div class="label">超期未完成</div>
+          <div class="value" id="mOverdue">0</div>
+          <div class="hint">需要当天追踪或调整截止时间</div>
+        </div>
+        <div class="card metric">
+          <div class="label">本周重点</div>
+          <div class="value" id="mWeek">0</div>
+          <div class="hint">会议、汇报、月底统计优先看</div>
+        </div>
+        <div class="card metric">
+          <div class="label">待生成文案</div>
+          <div class="value" id="mCopy">0</div>
+          <div class="hint">包含值班通知、汇报提纲等</div>
+        </div>
+      </div>
+
+      <div class="grid two">
+        <div class="card">
+          <div class="section-title">
+            <h3>今日工作清单</h3>
+            <span>按优先级排序</span>
+          </div>
+          <div id="todayTasks" class="todo-list"></div>
+        </div>
+        <div class="card">
+          <div class="section-title">
+            <h3>被打断后先做什么</h3>
+            <span>下一步动作</span>
+          </div>
+          <div id="nextActions" class="todo-list"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="section-title">
+          <h3>未来7天护长总值</h3>
+          <span>值班安排与检查科室</span>
+        </div>
+        <div id="weeklyDutyBoard"></div>
+      </div>
+      <div class="card">
+        <div class="section-title">
+          <h3 id="taskFormTitle">新增工作提醒</h3>
+          <span>所有临时工作先记到这里</span>
+        </div>
+        <div class="form">
+          <div class="field">
+            <label>日期</label>
+            <input type="date" id="taskDate">
+          </div>
+          <div class="field">
+            <label>工作类别</label>
+            <select id="taskCategory">
+              <option>三名工程</option>
+              <option>护长总值</option>
+              <option>不良事件</option>
+              <option>压力性损伤</option>
+              <option>专科小组</option>
+              <option>党务工作</option>
+              <option>会议活动</option>
+              <option>其他</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>优先级</label>
+            <select id="taskPriority">
+              <option>高</option>
+              <option>中</option>
+              <option>低</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>状态</label>
+            <select id="taskStatus">
+              <option>未开始</option>
+              <option>进行中</option>
+              <option>已完成</option>
+              <option>需跟进</option>
+            </select>
+          </div>
+          <div class="field full">
+            <label>具体事项</label>
+            <input id="taskTitle" placeholder="例如：审核今日不良事件、发送今日值班检查科室">
+          </div>
+          <div class="field full">
+            <label>下一步动作</label>
+            <textarea id="taskNext" placeholder="例如：先登录不良事件系统，筛出今日新增上报记录"></textarea>
+          </div>
+          <div class="field full">
+            <button class="primary" id="addTaskBtn">加入工作台</button>
+            <button class="ghost" id="cancelEditBtn" style="display: none; margin-top: 8px;">取消编辑</button>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="section-title">
+          <h3>全部提醒事项</h3>
+          <span id="taskCount"></span>
+        </div>
+        <div class="form" style="margin-bottom: 12px;">
+          <div class="field">
+            <label>筛选类别</label>
+            <select id="filterCategory">
+              <option value="">全部类别</option>
+              <option>三名工程</option>
+              <option>护长总值</option>
+              <option>不良事件</option>
+              <option>压力性损伤</option>
+              <option>专科小组</option>
+              <option>党务工作</option>
+              <option>会议活动</option>
+              <option>其他</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>筛选状态</label>
+            <select id="filterStatus">
+              <option value="">全部状态</option>
+              <option>未开始</option>
+              <option>进行中</option>
+              <option>已完成</option>
+              <option>需跟进</option>
+              <option>已归档</option>
+              <option>已删除</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>筛选优先级</label>
+            <select id="filterPriority">
+              <option value="">全部优先级</option>
+              <option>高</option>
+              <option>中</option>
+              <option>低</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>显示</label>
+            <select id="filterArchive">
+              <option value="active">当前任务</option>
+              <option value="all">显示全部</option>
+              <option value="archived">只看归档</option>
+              <option value="deleted">只看回收站</option>
+            </select>
+          </div>
+        </div>
+        <div id="taskTable"></div>
+      </div>
+    </section>
+
+    <section class="page" id="duty">
+      <div class="grid two">
+        <div class="card">
+          <div class="section-title">
+            <h3>今日护长总值检查通知｜<span id="todayDutyNurseTitle">待安排</span></h3>
+            <span>可复制到企业微信</span>
+          </div>
+          <div class="todo-meta" id="todayDutyNurseMeta" style="margin-bottom: 10px;">今日总值护长：待安排</div>
+          <div class="copybox" id="dutyCopy"></div>
+          <div style="margin-top: 12px;">
+            <button class="primary" id="copyDutyBtn">复制通知文案</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="section-title">
+            <h3>护长总值排班规则</h3>
+            <span>第一版规则</span>
+          </div>
+          <p>工作日每天至少检查 3 个科室；周末及节假日至少检查 6 个科室。</p>
+          <p>景田北社区医院每周工作日安排1次、周末/节假日安排1次（约8次/月）；9 个高风险科室按隔日或隔 2 日频率重点检查，同时兼顾其他科室轮转。</p>
+          <div style="margin-top: 12px;">
+            <button class="secondary" id="importJulyActualDutyBtn">导入7月29-31实际数据</button>
+            <button class="secondary" id="importAugustDutyBtn">导入2026年8月安排</button>
+            <button class="primary" id="generateNextMonthDraftBtn">生成下月草案</button>
+          </div>
+        </div>
+      </div>
+      <div class="card" id="dutyDraftCard">
+        <div class="section-title">
+          <h3>下月护长总值草案</h3>
+          <span id="dutyDraftStatus">暂无草案</span>
+        </div>
+        <div class="actions" style="margin-bottom: 12px;">
+          <button class="primary" id="confirmDutyDraftBtn">确认并加入正式安排</button>
+          <button class="ghost" id="clearDutyDraftBtn">清空草案</button>
+        </div>
+        <div id="dutyDraftTable"></div>
+      </div>
+      <div class="card">
+        <div class="section-title">
+          <h3>本周检查安排示例</h3>
+          <span>后续可改为真实数据</span>
+        </div>
+        <div class="form" style="margin-bottom: 12px;">
+          <div class="field">
+            <label>日期</label>
+            <input type="date" id="dutyDate">
+          </div>
+          <div class="field">
+            <label>值班护士长</label>
+            <input id="dutyNurse" placeholder="例如：李护长">
+          </div>
+          <div class="field">
+            <label>是否节假日</label>
+            <select id="dutyHoliday">
+              <option value="false">工作日</option>
+              <option value="true">周末/节假日</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>状态</label>
+            <select id="dutyStatus">
+              <option>待发送</option>
+              <option>已发送</option>
+              <option>已完成</option>
+              <option>已归档</option>
+            </select>
+          </div>
+          <div class="field full">
+            <label>检查科室</label>
+            <textarea id="dutyDepartments" placeholder="每行一个科室，例如：&#10;内一科&#10;针灸康复科&#10;骨伤科"></textarea>
+          </div>
+          <div class="field full">
+            <label>备注</label>
+            <textarea id="dutyNote" placeholder="例如：需重点关注上次整改未闭环问题"></textarea>
+          </div>
+          <div class="field full">
+            <button class="primary" id="addDutyBtn">保存护长总值安排</button>
+            <button class="ghost" id="cancelDutyEditBtn" style="display: none; margin-top: 8px;">取消编辑</button>
+          </div>
+        </div>
+        <div class="form" style="margin-bottom: 12px;">
+          <div class="field">
+            <label>显示</label>
+            <select id="dutyFilterArchive">
+              <option value="active">不显示归档</option>
+              <option value="all">显示全部</option>
+              <option value="archived">只看归档</option>
+            </select>
+          </div>
+        </div>
+        <div id="dutyTable"></div>
+      </div>
+    </section>
+
+    <section class="page" id="events">
+      <div class="grid two">
+        <div class="card">
+          <div class="section-title">
+            <h3>本月不良事件分析</h3>
+            <span>示例看板</span>
+          </div>
+          <div class="bar-row"><span>给药相关</span><div class="bar"><span style="width: 72%"></span></div><strong>8例</strong></div>
+          <div class="bar-row"><span>跌倒坠床</span><div class="bar"><span style="width: 45%"></span></div><strong>5例</strong></div>
+          <div class="bar-row"><span>管路相关</span><div class="bar"><span style="width: 36%"></span></div><strong>4例</strong></div>
+          <div class="bar-row"><span>其他事件</span><div class="bar"><span style="width: 18%"></span></div><strong>2例</strong></div>
+        </div>
+        <div class="card">
+          <div class="section-title">
+            <h3>月度分析重点</h3>
+            <span>AI 可生成初稿</span>
+          </div>
+          <p>本月重点关注护士直接导致事件、原因分析空泛、整改措施不可追踪、重复发生科室和高峰时间段。</p>
+          <button class="secondary" id="eventPromptBtn">生成不良事件分析提示词</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="section-title">
+          <h3>典型案例筛选规则</h3>
+          <span>适合护长例会</span>
+        </div>
+        <table>
+          <thead><tr><th>筛选维度</th><th>判断标准</th><th>分享重点</th></tr></thead>
+          <tbody>
+            <tr><td>代表性</td><td>同类问题容易在多个科室重复出现</td><td>让其他护士长吸取经验</td></tr>
+            <tr><td>可改进性</td><td>原因分析清楚，整改措施可执行</td><td>流程优化、培训改进、追踪闭环</td></tr>
+            <tr><td>警示价值</td><td>对患者安全和护理质量有明显提醒意义</td><td>3-5 分钟，聚焦原因和整改</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="page" id="pressure">
+      <div class="card">
+        <div class="section-title">
+          <h3>压力性损伤 OA 审批清单</h3>
+          <span>每日审核辅助</span>
+        </div>
+        <table>
+          <thead><tr><th>审核点</th><th>需要判断</th><th>异常时处理</th></tr></thead>
+          <tbody>
+            <tr><td>Braden 评分</td><td>评分与患者情况、风险等级是否一致</td><td>标记疑点，退回科室核实</td></tr>
+            <tr><td>科室意见</td><td>是否有具体护理措施和动态评估</td><td>要求补充措施或追踪记录</td></tr>
+            <tr><td>专科小组意见</td><td>意见是否明确、合理、可执行</td><td>记录待沟通事项</td></tr>
+            <tr><td>整改闭环</td><td>是否有复评时间和责任人</td><td>加入日程提醒</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="page" id="expert">
+      <div class="grid three">
+        <div class="card metric">
+          <div class="label">专家来深计划</div>
+          <div class="value" id="expertVisitCount">0</div>
+          <div class="hint">待确认或待落实的来深安排</div>
+        </div>
+        <div class="card metric">
+          <div class="label">成果产出</div>
+          <div class="value" id="expertOutputCount">0</div>
+          <div class="hint">制度、培训、技术推广等成果</div>
+        </div>
+        <div class="card metric">
+          <div class="label">考核缺口</div>
+          <div class="value" id="expertGapCount">0</div>
+          <div class="hint">需要补充佐证材料</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="section-title">
+          <h3 id="expertFormTitle">新增三名工程事项</h3>
+          <span>围绕任务书、来深辅导、成果产出和绩效考核</span>
+        </div>
+        <div class="form">
+          <div class="field">
+            <label>专家姓名</label>
+            <input id="expertName" placeholder="例如：张教授">
+          </div>
+          <div class="field">
+            <label>专家方向</label>
+            <input id="expertDirection" placeholder="例如：中医护理技术推广">
+          </div>
+          <div class="field">
+            <label>计划来深时间</label>
+            <input type="date" id="expertVisitDate">
+          </div>
+          <div class="field">
+            <label>当前状态</label>
+            <select id="expertStatus">
+              <option>待安排</option>
+              <option>推进中</option>
+              <option>已完成</option>
+              <option>需补材料</option>
+              <option>已归档</option>
+            </select>
+          </div>
+          <div class="field full">
+            <label>任务书 / 协议书要求</label>
+            <textarea id="expertTaskRequirement" placeholder="记录该专家对应方向、任务书要求、协议书要求、年度考核相关要求"></textarea>
+          </div>
+          <div class="field full">
+            <label>本次辅导内容</label>
+            <textarea id="expertGuidance" placeholder="记录本次来深或线上辅导主题，要尽量贴合任务书方向、中医药发展和护理学科需要"></textarea>
+          </div>
+          <div class="field full">
+            <label>成果产出</label>
+            <textarea id="expertOutput" placeholder="例如：制度、培训、技术推广、课题、论文、方案、质控工具等"></textarea>
+          </div>
+          <div class="field full">
+            <label>考核缺口 / 下一步</label>
+            <textarea id="expertGap" placeholder="记录还缺哪些佐证材料、需要谁跟进、下一步要做什么"></textarea>
+          </div>
+          <div class="field full">
+            <button class="primary" id="addExpertBtn">加入三名工程台账</button>
+            <button class="ghost" id="cancelExpertEditBtn" style="display: none; margin-top: 8px;">取消编辑</button>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="section-title">
+          <h3>三名工程推进台账</h3>
+          <span id="expertCount"></span>
+        </div>
+        <div class="form" style="margin-bottom: 12px;">
+          <div class="field">
+            <label>筛选状态</label>
+            <select id="expertFilterStatus">
+              <option value="">全部状态</option>
+              <option>待安排</option>
+              <option>推进中</option>
+              <option>已完成</option>
+              <option>需补材料</option>
+              <option>已归档</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>显示</label>
+            <select id="expertFilterArchive">
+              <option value="active">不显示归档</option>
+              <option value="all">显示全部</option>
+              <option value="archived">只看归档</option>
+            </select>
+          </div>
+        </div>
+        <div id="expertTable"></div>
+      </div>
+    </section>
+
+    <section class="page" id="specialist">
+      <div class="grid three">
+        <div class="card metric">
+          <div class="label">专科小组任务</div>
+          <div class="value">0</div>
+          <div class="hint">待录入各小组年度和月度任务</div>
+        </div>
+        <div class="card metric">
+          <div class="label">培训质控安排</div>
+          <div class="value">0</div>
+          <div class="hint">可用于记录培训、督导、质控检查</div>
+        </div>
+        <div class="card metric">
+          <div class="label">待追踪问题</div>
+          <div class="value">0</div>
+          <div class="hint">后续可与日程提醒联动</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="section-title">
+          <h3>专科小组管理框架</h3>
+          <span>后续细化台账</span>
+        </div>
+        <table>
+          <thead><tr><th>模块</th><th>记录内容</th><th>可升级功能</th></tr></thead>
+          <tbody>
+            <tr><td>小组基础信息</td><td>小组名称、组长、成员、负责方向</td><td>形成专科小组通讯录和责任分工</td></tr>
+            <tr><td>年度计划</td><td>年度目标、培训计划、质控计划、成果目标</td><td>自动提醒月度推进和季度总结</td></tr>
+            <tr><td>培训与督导</td><td>培训主题、时间、参与科室、问题反馈</td><td>生成培训记录和督导整改清单</td></tr>
+            <tr><td>问题追踪</td><td>发现问题、责任科室、整改措施、完成情况</td><td>关联日程提醒和闭环追踪</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="page" id="party">
+      <div class="grid three">
+        <div class="card metric">
+          <div class="label">党务待办</div>
+          <div class="value">0</div>
+          <div class="hint">会议、学习、材料、活动提醒</div>
+        </div>
+        <div class="card metric">
+          <div class="label">本月材料</div>
+          <div class="value">0</div>
+          <div class="hint">后续可记录需提交材料</div>
+        </div>
+        <div class="card metric">
+          <div class="label">活动记录</div>
+          <div class="value">0</div>
+          <div class="hint">可沉淀照片、简报、签到等</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="section-title">
+          <h3>党务工作管理框架</h3>
+          <span>先建立入口</span>
+        </div>
+        <table>
+          <thead><tr><th>模块</th><th>记录内容</th><th>可升级功能</th></tr></thead>
+          <tbody>
+            <tr><td>会议学习</td><td>会议时间、主题、参会人员、学习内容</td><td>生成会议记录和学习纪要初稿</td></tr>
+            <tr><td>材料报送</td><td>材料名称、截止时间、报送对象、当前状态</td><td>接入日程提醒，避免漏报</td></tr>
+            <tr><td>主题活动</td><td>活动方案、参与人员、活动照片、宣传稿</td><td>生成活动简报和总结材料</td></tr>
+            <tr><td>党员管理</td><td>党员信息、发展对象、谈心谈话、学习记录</td><td>形成党务台账和提醒清单</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="page" id="ai">
+      <div class="grid two">
+        <div class="card">
+          <div class="section-title">
+            <h3>AI 提示词生成区</h3>
+            <span>复制到豆包或 DeepSeek</span>
+          </div>
+          <div class="actions" style="margin-bottom: 12px;">
+            <button class="secondary" data-prompt="day">今日工作规划</button>
+            <button class="secondary" data-prompt="event">不良事件审核</button>
+            <button class="secondary" data-prompt="expert">三名工程汇报</button>
+            <button class="secondary" data-prompt="report">月度分析报告</button>
+          </div>
+          <div class="prompt" id="promptBox"></div>
+          <div style="margin-top: 12px;">
+            <button class="primary" id="copyPromptBtn">复制提示词</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="section-title">
+            <h3>下一步升级方向</h3>
+            <span>从原型到正式版</span>
+          </div>
+          <p>第一版先解决记录、筛选、提醒和文案生成。后续可以增加登录、数据库、自动图表、Excel 导入导出、日历提醒、企业微信机器人推送。</p>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+  const storageKey = "nursing-workbench-v1";
+  function toLocalIso(date = new Date()) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  }
+
+  let todayIso = toLocalIso();
+
+  function createId() {
+    if (window.crypto && typeof window.crypto.randomUUID === "function") {
+      return window.crypto.randomUUID();
+    }
+    return `local-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+  }
+
+  const DUTY_DEPARTMENTS = [
+    "景田北社区医院", "肛肠科", "外科", "骨伤一科", "脑病科", "儿科", "妇科", "骨伤二科", "重症医学科",
+    "急诊综合病房", "麻醉科/手术室", "急诊科", "脾胃病科", "心血管科", "内分泌科", "肺病科",
+    "肿瘤五科", "肿瘤四科", "肿瘤三科", "肿瘤二科", "肿瘤一科", "肾病风湿", "推拿科", "康复科", "针灸科"
+  ];
+
+  const HIGH_RISK_DUTY_DEPARTMENTS = [
+    "肛肠科", "骨伤二科", "肾病风湿", "外科", "脑病科", "妇科", "急诊科", "急诊综合病房", "肺病科"
+  ];
+
+  const DUTY_NURSE_DEPARTMENT_MAP = {
+    "马鹏莉": "胃肠镜室",
+    "张慧慧": "心血管病科",
+    "吕海鹏": "肺病科",
+    "陈应平": "肿瘤二科",
+    "黄萍燕": "景田北社区医院",
+    "龚杨": "肿瘤一科",
+    "陈薇薇": "肾病风湿",
+    "游旅": "推拿科",
+    "吴蒙": "康复科",
+    "刘牧军": "针灸科",
+    "计娜": "血透室",
+    "吴玉娟": "中医综合治疗区",
+    "钟雪莲": "感染性疾病科",
+    "徐硕阳": "肛肠科",
+    "高玲玲": "外科",
+    "吴杰倩": "骨伤一科",
+    "陈苑婷": "脑病科",
+    "黄燕芳": "儿科",
+    "李晓": "脾胃病科",
+    "靳彩云": "骨伤二科",
+    "林金": "妇科",
+    "包爱琴": "供应室",
+    "俞菲": "手术室",
+    "徐子才": "重症医学科",
+    "翟妍": "口腔科",
+    "宋春树": "急诊科",
+    "彭细果": "门诊客服部",
+    "肖美": "肿瘤五科",
+    "卢建荣": "内分泌科",
+    "李娜": "肿瘤三科",
+    "罗丽丹": "治未病科",
+    "王泽红": "肿瘤四科"
+  };
+
+  const DUTY_NURSE_ROTATION = [
+    "马鹏莉", "张慧慧", "吕海鹏", "陈应平", "黄萍燕", "龚杨",
+    "陈薇薇", "游旅", "吴蒙", "刘牧军", "计娜", "吴玉娟", "钟雪莲",
+    "徐硕阳", "高玲玲", "吴杰倩", "陈苑婷", "黄燕芳", "李晓", "靳彩云",
+    "林金", "包爱琴", "俞菲", "徐子才", "翟妍", "宋春树", "彭细果",
+    "肖美", "卢建荣", "李娜", "罗丽丹", "王泽红"
+  ];
+
+  const DUTY_DEPARTMENT_ALIASES = {
+    "心血管科": "心血管病科",
+    "急诊综合病区": "急诊综合病房",
+    "麻醉科/手术室": "手术室"
+  };
+
+  const AUGUST_2026_DUTY_SOURCE = [
+    ["2026-08-01", "李娜", true, ["景田北社区医院", "肺病科", "肛肠科", "康复科", "重症医学科", "急诊科"]],
+    ["2026-08-02", "罗丽丹", true, ["妇科", "肿瘤一科", "外科", "肾病风湿", "脑病科", "骨伤二科"]],
+    ["2026-08-03", "王泽红", false, ["心血管科", "骨伤一科", "儿科"]],
+    ["2026-08-04", "马鹏莉", false, ["景田北社区医院", "急诊综合病房", "内分泌科"]],
+    ["2026-08-05", "张慧慧", false, ["肺病科", "肛肠科", "麻醉科/手术室"]],
+    ["2026-08-06", "吕海鹏", false, ["骨伤二科", "肾病风湿", "肿瘤五科"]],
+    ["2026-08-07", "陈应平", false, ["外科", "脑病科", "肿瘤四科"]],
+    ["2026-08-08", "黄萍燕", true, ["脾胃病科", "妇科", "急诊科", "急诊综合病房", "肿瘤三科", "肿瘤二科"]],
+    ["2026-08-09", "龚杨", true, ["景田北社区医院", "肺病科", "肛肠科", "骨伤二科", "推拿科", "针灸科"]],
+    ["2026-08-10", "陈薇薇", false, ["儿科", "肾病风湿", "外科"]],
+    ["2026-08-11", "游旅", false, ["脑病科", "妇科", "重症医学科"]],
+    ["2026-08-12", "吴蒙", false, ["急诊科", "急诊综合病房", "骨伤一科"]],
+    ["2026-08-13", "刘牧军", false, ["景田北社区医院", "肺病科", "肛肠科"]],
+    ["2026-08-14", "计娜", false, ["骨伤二科", "肾病风湿", "麻醉科/手术室"]],
+    ["2026-08-15", "吴玉娟", true, ["肿瘤五科", "外科", "脑病科", "妇科", "心血管科", "内分泌科"]],
+    ["2026-08-16", "钟雪莲", true, ["景田北社区医院", "急诊科", "急诊综合病房", "肺病科", "肿瘤四科", "肿瘤三科"]],
+    ["2026-08-17", "徐硕阳", false, ["肿瘤一科", "肛肠科", "骨伤二科"]],
+    ["2026-08-18", "高玲玲", false, ["肾病风湿", "外科", "肿瘤二科"]],
+    ["2026-08-19", "吴杰倩", false, ["景田北社区医院", "脑病科", "妇科"]],
+    ["2026-08-20", "陈苑婷", false, ["急诊科", "急诊综合病房", "脾胃病科"]],
+    ["2026-08-21", "黄燕芳", false, ["肺病科", "肛肠科", "康复科"]],
+    ["2026-08-22", "李晓", true, ["重症医学科", "骨伤二科", "肾病风湿", "外科", "推拿科", "针灸科"]],
+    ["2026-08-23", "靳彩云", true, ["景田北社区医院", "脑病科", "妇科", "急诊科", "麻醉科/手术室", "骨伤一科"]],
+    ["2026-08-24", "林金", false, ["内分泌科", "急诊综合病房", "肺病科"]],
+    ["2026-08-25", "包爱琴", false, ["肛肠科", "骨伤二科", "儿科"]],
+    ["2026-08-26", "俞菲", false, ["肾病风湿", "外科", "心血管科"]],
+    ["2026-08-27", "徐子才", false, ["景田北社区医院", "脑病科", "妇科"]],
+    ["2026-08-28", "翟妍", false, ["急诊科", "急诊综合病房", "肿瘤五科"]],
+    ["2026-08-29", "宋春树", true, ["脾胃病科", "肺病科", "肛肠科", "肿瘤四科", "肿瘤三科", "肿瘤二科"]],
+    ["2026-08-30", "彭细果", true, ["景田北社区医院", "骨伤二科", "肾病风湿", "外科", "肿瘤一科", "康复科"]],
+    ["2026-08-31", "肖美", false, ["推拿科", "脑病科", "妇科"]]
+  ];
+
+  const JULY_2026_ACTUAL_DUTY_SOURCE = [
+    ["2026-07-29", "彭细果", false, ["骨伤二科", "肛肠科", "肾病风湿"]],
+    ["2026-07-30", "肖美", false, ["景田北社区医院", "推拿科", "麻醉科/手术室"]],
+    ["2026-07-31", "卢建荣", false, ["肿瘤二科", "急诊综合病房", "骨伤一科"]]
+  ];
+
+  function buildJuly2026ActualDutySchedule() {
+    return JULY_2026_ACTUAL_DUTY_SOURCE.map(([date, nurse, holiday, departments]) => ({
+      id: `duty-${date}`,
+      date,
+      nurse,
+      holiday,
+      status: "已完成",
+      departments,
+      note: "2026年7月实际检查数据",
+      source: "2026年7月实际数据"
+    }));
+  }
+
+  function buildAugust2026DutySchedule() {
+    return AUGUST_2026_DUTY_SOURCE.map(([date, nurse, holiday, departments]) => ({
+      id: `duty-${date}`,
+      date,
+      nurse,
+      holiday,
+      status: "待发送",
+      departments,
+      note: "2026年8月已确认安排",
+      source: "2026年8月护长总值安排"
+    }));
+  }
+
+  const defaultData = {
+    tasks: [
+      {
+        id: createId(),
+        date: todayIso,
+        category: "护长总值",
+        priority: "高",
+        status: "未开始",
+        title: "发送今日护长总值检查科室",
+        next: "核对今日护长总值人员和检查科室，复制企业微信通知文案后发送。"
+      },
+      {
+        id: createId(),
+        date: todayIso,
+        category: "不良事件",
+        priority: "高",
+        status: "进行中",
+        title: "审核今日不良事件系统新增上报",
+        next: "先查看事件类型、原因分析和整改措施，标记需退回修改的记录。"
+      },
+      {
+        id: createId(),
+        date: todayIso,
+        category: "压力性损伤",
+        priority: "中",
+        status: "未开始",
+        title: "处理 OA 压力性损伤报表审批",
+        next: "先核对 Braden 评分，再看科室意见和专科小组审批意见是否合理。"
+      },
+      {
+        id: createId(),
+        date: todayIso,
+        category: "三名工程",
+        priority: "中",
+        status: "需跟进",
+        title: "更新三名工程月例会进度",
+        next: "对照任务书和绩效考核条目，补充本月成果产出和材料缺口。"
+      }
+    ],
+    duty: [
+      { id: createId(), date: todayIso, nurse: "今日护长总值", departments: ["内一科", "针灸康复科", "骨伤科"], holiday: false, status: "待发送", note: "" },
+      { id: createId(), date: addDays(1), nurse: "待填写", departments: ["外科", "妇科", "急诊科"], holiday: false, status: "待发送", note: "" },
+      { id: createId(), date: addDays(2), nurse: "待填写", departments: ["老年病科", "治未病科", "脾胃病科"], holiday: false, status: "待发送", note: "" }
+    ],
+    experts: []
+  };
+
+  const promptTemplates = {
+    day: `你是一名护理部工作规划助手。请根据我今天的任务清单，帮我按紧急程度、截止时间和工作连续性重新排序，并告诉我每项任务被打断后回来应该先做什么。\n\n请输出：\n1. 今日必须完成事项；\n2. 可以延后事项；\n3. 每项任务的下一步动作；\n4. 如果临时会议插入，如何调整顺序。\n\n以下是今日任务：\n【粘贴工作台今日任务】`,
+    event: `你是一名医院护理质量管理助手。请帮我审核以下不良事件上报内容，重点判断：\n1. 事件类型是否准确；\n2. 原因分析是否具体，是否避免只写“责任心不强”等空泛原因；\n3. 整改措施是否可执行、可追踪；\n4. 是否适合作为护士长例会分享案例；\n5. 如果需要退回修改，请给出具体修改建议。\n\n以下是不良事件内容：\n【粘贴事件内容】`,
+    expert: `你是一名中医护理三名工程项目管理助手。请根据以下任务书方向、协议书要求、绩效考核条目和本月完成情况，帮我生成月例会汇报提纲。\n\n要求：\n1. 按专家方向分别总结进度；\n2. 说明已完成成果、正在推进事项和材料缺口；\n3. 判断内容是否贴合中医药发展和任务书要求；\n4. 给出下月专家来深辅导建议；\n5. 输出适合会议汇报的简洁版本。\n\n材料如下：\n【粘贴三名工程台账】`,
+    report: `你是一名医院护理质量分析助手。请根据我提供的不良事件月度数据，生成一份月度分析报告初稿。\n\n报告需要包含：\n1. 本月不良事件总体情况；\n2. 与去年同期出院人数占比对比，上升或下降说明；\n3. 按科室、事件类型、发生时间段、当事护士年限和职称分析；\n4. 护士直接导致事件的重点分析；\n5. 典型案例推荐和原因分析；\n6. 下月整改和追踪建议。\n\n数据如下：\n【粘贴月度数据】`
+  };
+
+  let data = loadLocalData();
+  let cloudReady = false;
+  let editingTaskId = null;
+  let editingExpertId = null;
+  let editingDutyId = null;
+
+  function addDays(days) {
+    const d = new Date();
+    d.setDate(d.getDate() + days);
+    return toLocalIso(d);
+  }
+
+  function loadLocalData() {
+    const saved = localStorage.getItem(storageKey);
+    if (!saved) return structuredClone(defaultData);
+    try {
+      const parsed = JSON.parse(saved);
+      if (!Array.isArray(parsed.tasks)) parsed.tasks = [];
+      if (!Array.isArray(parsed.duty)) parsed.duty = structuredClone(defaultData.duty);
+      if (!Array.isArray(parsed.dutyDrafts)) parsed.dutyDrafts = [];
+      parsed.duty = parsed.duty.map(item => ({
+        id: item.id || createId(),
+        date: item.date || todayIso,
+        nurse: item.nurse || "",
+        departments: Array.isArray(item.departments) ? item.departments : [],
+        holiday: Boolean(item.holiday),
+        status: item.status || "待发送",
+        note: item.note || ""
+      }));
+      if (!Array.isArray(parsed.experts)) parsed.experts = [];
+      return parsed;
+    } catch {
+      return structuredClone(defaultData);
+    }
+  }
+
+  function saveLocalData() {
+    localStorage.setItem(storageKey, JSON.stringify(data));
+  }
+
+  function readStoredWorkbenchData() {
+    try {
+      const saved = localStorage.getItem(storageKey);
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  }
+
+  function setSyncStatus(text, type = "local") {
+    const el = document.getElementById("syncStatus");
+    if (!el) return;
+    el.textContent = text;
+    el.className = `sync-status ${type}`;
+  }
+
+  function toAppTask(row) {
+    return {
+      id: row.id,
+      date: row.date,
+      category: row.category,
+      priority: row.priority,
+      status: row.status,
+      title: row.title,
+      next: row.next_action || ""
+    };
+  }
+
+  function toCloudTask(task) {
+    return {
+      date: task.date,
+      category: task.category,
+      priority: task.priority,
+      status: task.status,
+      title: task.title,
+      next_action: task.next || "",
+      updated_at: new Date().toISOString()
+    };
+  }
+
+  function toAppExpert(row) {
+    return {
+      id: row.id,
+      name: row.name || "",
+      direction: row.direction || "",
+      visitDate: row.visit_date || "",
+      status: row.status || "待安排",
+      requirement: row.requirement || "",
+      guidance: row.guidance || "",
+      output: row.output || "",
+      gap: row.gap || "",
+      updatedAt: row.updated_at || ""
+    };
+  }
+
+  function toCloudExpert(item) {
+    return {
+      name: item.name || "",
+      direction: item.direction || "",
+      visit_date: item.visitDate || null,
+      status: item.status || "待安排",
+      requirement: item.requirement || "",
+      guidance: item.guidance || "",
+      output: item.output || "",
+      gap: item.gap || "",
+      updated_at: new Date().toISOString()
+    };
+  }
+
+  const MOBILE_DATA_KEY = "deer-star-mobile-workbench-v1";
+  const MOBILE_TOKEN_KEY = "deer-star-mobile-login-ok";
+  const MOBILE_PASSWORD_SALT = "deer-star-mobile";
+  const MOBILE_PASSWORD_HASH = "6d2ccfdf";
+  let localSyncCache = null;
+  let localAuthToken = localStorage.getItem(MOBILE_TOKEN_KEY) || "";
+
+  function authHeaders(extra = {}) {
+    return extra;
+  }
+
+  function hashPasswordForMobile(password) {
+    let hash = 2166136261;
+    const value = `${MOBILE_PASSWORD_SALT}|${password}`;
+    for (let i = 0; i < value.length; i += 1) {
+      hash ^= value.charCodeAt(i);
+      hash = Math.imul(hash, 16777619);
+    }
+    return (hash >>> 0).toString(16).padStart(8, "0");
+  }
+
+  async function loginLocalSync() {
+    const password = document.getElementById("loginPassword").value;
+    const errorBox = document.getElementById("loginError");
+    errorBox.style.display = "none";
+    try {
+      const hashed = hashPasswordForMobile(password);
+      if (hashed !== MOBILE_PASSWORD_HASH) {
+        errorBox.textContent = "密码不正确。";
+        errorBox.style.display = "block";
+        return;
+      }
+      localAuthToken = "ok";
+      localStorage.setItem(MOBILE_TOKEN_KEY, localAuthToken);
+      document.getElementById("loginPassword").value = "";
+      document.getElementById("loginScreen").style.display = "none";
+      document.getElementById("appShell").style.display = "";
+      await initApp();
+    } catch (error) {
+      errorBox.textContent = "登录失败，请重试。";
+      errorBox.style.display = "block";
+    }
+  }
+
+  function logoutLocalSync() {
+    localAuthToken = "";
+    localSyncCache = null;
+    localStorage.removeItem(MOBILE_TOKEN_KEY);
+    document.getElementById("appShell").style.display = "none";
+    document.getElementById("loginScreen").style.display = "grid";
+  }
+
+  async function loadLocalSyncCache() {
+    if (localSyncCache) return localSyncCache;
+    try {
+      const saved = localStorage.getItem(MOBILE_DATA_KEY);
+      if (!saved) {
+        const storedWorkbench = readStoredWorkbenchData();
+        localSyncCache = {
+          tasks: Array.isArray(storedWorkbench?.tasks) ? storedWorkbench.tasks : [],
+          experts: Array.isArray(storedWorkbench?.experts) ? storedWorkbench.experts : [],
+          duty: Array.isArray(storedWorkbench?.duty) ? storedWorkbench.duty : [],
+          dutyDrafts: Array.isArray(storedWorkbench?.dutyDrafts) ? storedWorkbench.dutyDrafts : []
+        };
+        localStorage.setItem(MOBILE_DATA_KEY, JSON.stringify(localSyncCache));
+        return localSyncCache;
+      }
+      const payload = JSON.parse(saved);
+      const storedWorkbench = readStoredWorkbenchData();
+      localSyncCache = {
+        tasks: Array.isArray(payload.tasks) ? payload.tasks : (Array.isArray(storedWorkbench?.tasks) ? storedWorkbench.tasks : []),
+        experts: Array.isArray(payload.experts) ? payload.experts : (Array.isArray(storedWorkbench?.experts) ? storedWorkbench.experts : []),
+        duty: Array.isArray(payload.duty) && payload.duty.length ? payload.duty : (Array.isArray(storedWorkbench?.duty) ? storedWorkbench.duty : []),
+        dutyDrafts: Array.isArray(payload.dutyDrafts) ? payload.dutyDrafts : (Array.isArray(storedWorkbench?.dutyDrafts) ? storedWorkbench.dutyDrafts : [])
+      };
+      return localSyncCache;
+    } catch (error) {
+      const storedWorkbench = readStoredWorkbenchData();
+      localSyncCache = {
+        tasks: Array.isArray(storedWorkbench?.tasks) ? storedWorkbench.tasks : [],
+        experts: Array.isArray(storedWorkbench?.experts) ? storedWorkbench.experts : [],
+        duty: Array.isArray(storedWorkbench?.duty) ? storedWorkbench.duty : [],
+        dutyDrafts: Array.isArray(storedWorkbench?.dutyDrafts) ? storedWorkbench.dutyDrafts : []
+      };
+      try {
+        localStorage.setItem(MOBILE_DATA_KEY, JSON.stringify(localSyncCache));
+      } catch {}
+      return localSyncCache;
+    }
+  }
+
+  async function saveLocalSyncCache() {
+    try {
+      localStorage.setItem(MOBILE_DATA_KEY, JSON.stringify(localSyncCache || { tasks: [], experts: [], duty: [], dutyDrafts: [] }));
+    } catch (error) {
+      throw new Error("手机浏览器本地存储不可用");
+    }
+  }
+
+  function extractEqId(path) {
+    const match = path.match(/id=eq\.([^&]+)/);
+    return match ? decodeURIComponent(match[1]) : "";
+  }
+
+  async function supabaseRequest(path, options = {}) {
+    const method = (options.method || "GET").toUpperCase();
+    const store = await loadLocalSyncCache();
+
+    if (path.startsWith("tasks")) {
+      if (method === "GET") return store.tasks.map(appTaskToLocalRow);
+      if (method === "POST") {
+        const body = JSON.parse(options.body || "{}");
+        const row = { ...body, id: createId(), created_at: new Date().toISOString(), updated_at: new Date().toISOString() };
+        store.tasks.push(toAppTask(row));
+        await saveLocalSyncCache();
+        return [row];
+      }
+      if (method === "PATCH") {
+        const id = extractEqId(path);
+        const body = JSON.parse(options.body || "{}");
+        let row = null;
+        store.tasks = store.tasks.map(task => {
+          if (task.id !== id) return task;
+          const next = {
+            ...task,
+            date: body.date ?? task.date,
+            category: body.category ?? task.category,
+            priority: body.priority ?? task.priority,
+            status: body.status ?? task.status,
+            title: body.title ?? task.title,
+            next: body.next_action ?? task.next,
+            updatedAt: new Date().toISOString()
+          };
+          row = appTaskToLocalRow(next);
+          return next;
+        });
+        await saveLocalSyncCache();
+        return row ? [row] : [];
+      }
+    }
+
+    if (path.startsWith("expert_projects")) {
+      if (method === "GET") return store.experts.map(appExpertToLocalRow);
+      if (method === "POST") {
+        const body = JSON.parse(options.body || "{}");
+        const row = { ...body, id: createId(), created_at: new Date().toISOString(), updated_at: new Date().toISOString() };
+        store.experts.push(toAppExpert(row));
+        await saveLocalSyncCache();
+        return [row];
+      }
+      if (method === "PATCH") {
+        const id = extractEqId(path);
+        const body = JSON.parse(options.body || "{}");
+        let row = null;
+        store.experts = store.experts.map(item => {
+          if (item.id !== id) return item;
+          const next = {
+            ...item,
+            name: body.name ?? item.name,
+            direction: body.direction ?? item.direction,
+            visitDate: body.visit_date ?? item.visitDate,
+            status: body.status ?? item.status,
+            requirement: body.requirement ?? item.requirement,
+            guidance: body.guidance ?? item.guidance,
+            output: body.output ?? item.output,
+            gap: body.gap ?? item.gap,
+            updatedAt: new Date().toISOString()
+          };
+          row = appExpertToLocalRow(next);
+          return next;
+        });
+        await saveLocalSyncCache();
+        return row ? [row] : [];
+      }
+    }
+
+    throw new Error(`本地同步服务暂不支持：${method} ${path}`);
+  }
+
+  async function loadCloudTasks() {
+    setSyncStatus("⭐ 正在读取手机本地数据", "local");
+    const rows = await supabaseRequest("tasks?select=*&order=date.asc,created_at.asc");
+    data.tasks = rows.map(toAppTask);
+    cloudReady = true;
+    saveLocalData();
+    setSyncStatus("📱 手机本地数据已连接", "cloud");
+    render();
+  }
+
+  async function createCloudTask(task) {
+    const rows = await supabaseRequest("tasks", {
+      method: "POST",
+      headers: { "Prefer": "return=representation" },
+      body: JSON.stringify(toCloudTask(task))
+    });
+    return toAppTask(rows[0]);
+  }
+
+  async function updateCloudTask(id, patch) {
+    const body = {};
+    if (patch.date) body.date = patch.date;
+    if (patch.category) body.category = patch.category;
+    if (patch.priority) body.priority = patch.priority;
+    if (patch.status) body.status = patch.status;
+    if (patch.title) body.title = patch.title;
+    if ("next" in patch) body.next_action = patch.next || "";
+    body.updated_at = new Date().toISOString();
+
+    const rows = await supabaseRequest(`tasks?id=eq.${encodeURIComponent(id)}`, {
+      method: "PATCH",
+      headers: { "Prefer": "return=representation" },
+      body: JSON.stringify(body)
+    });
+    return rows && rows[0] ? toAppTask(rows[0]) : null;
+  }
+
+  async function loadCloudExperts() {
+    const rows = await supabaseRequest("expert_projects?select=*&order=created_at.desc");
+    data.experts = rows.map(toAppExpert);
+    saveLocalData();
+  }
+
+  async function loadCloudDuty() {
+    const store = await loadLocalSyncCache();
+    data.duty = Array.isArray(store.duty) ? store.duty : [];
+    data.dutyDrafts = Array.isArray(store.dutyDrafts) ? store.dutyDrafts : [];
+    saveLocalData();
+  }
+
+  async function createCloudExpert(item) {
+    const rows = await supabaseRequest("expert_projects", {
+      method: "POST",
+      headers: { "Prefer": "return=representation" },
+      body: JSON.stringify(toCloudExpert(item))
+    });
+    return toAppExpert(rows[0]);
+  }
+
+  async function updateCloudExpert(id, patch) {
+    const body = {};
+    if ("name" in patch) body.name = patch.name || "";
+    if ("direction" in patch) body.direction = patch.direction || "";
+    if ("visitDate" in patch) body.visit_date = patch.visitDate || null;
+    if ("status" in patch) body.status = patch.status || "待安排";
+    if ("requirement" in patch) body.requirement = patch.requirement || "";
+    if ("guidance" in patch) body.guidance = patch.guidance || "";
+    if ("output" in patch) body.output = patch.output || "";
+    if ("gap" in patch) body.gap = patch.gap || "";
+    body.updated_at = new Date().toISOString();
+
+    const rows = await supabaseRequest(`expert_projects?id=eq.${encodeURIComponent(id)}`, {
+      method: "PATCH",
+      headers: { "Prefer": "return=representation" },
+      body: JSON.stringify(body)
+    });
+    return rows && rows[0] ? toAppExpert(rows[0]) : null;
+  }
+
+  function formatDateText(date) {
+    return new Date(date + "T00:00:00").toLocaleDateString("zh-CN", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      weekday: "long"
+    });
+  }
+
+  function weekdayText(date) {
+    return new Date(date + "T00:00:00").toLocaleDateString("zh-CN", { weekday: "long" });
+  }
+
+  function priorityClass(priority) {
+    if (priority === "高") return "high";
+    if (priority === "中") return "mid";
+    return "low";
+  }
+
+  function isOverdue(task) {
+    return task.date < todayIso && task.status !== "已完成" && task.status !== "已归档" && task.status !== "已删除";
+  }
+
+  function inThisWeek(task) {
+    const d = new Date(task.date + "T00:00:00");
+    const diff = (d - new Date(todayIso + "T00:00:00")) / 86400000;
+    return diff >= 0 && diff <= 7 && task.status !== "已完成" && task.status !== "已归档" && task.status !== "已删除";
+  }
+
+  function refreshTodayIfNeeded() {
+    const latestTodayIso = toLocalIso();
+    if (latestTodayIso === todayIso) return;
+    todayIso = latestTodayIso;
+    if (!editingTaskId) document.getElementById("taskDate").value = todayIso;
+    if (!editingDutyId) document.getElementById("dutyDate").value = todayIso;
+    render();
+    setSyncStatus("📱 日期已更新，今日看板已刷新", "cloud");
+  }
+
+  function render() {
+    document.getElementById("todayText").textContent = `今天是 ${formatDateText(todayIso)}。建议先处理高优先级和到期事项。`;
+    renderMetrics();
+    renderTodayTasks();
+    renderDashboardDuty();
+    renderWeeklyDutyBoard();
+    renderTaskTable();
+    renderDuty();
+    renderDutyDraft();
+    renderExpert();
+    if (!editingTaskId) document.getElementById("taskDate").value = todayIso;
+    document.getElementById("promptBox").textContent = promptTemplates.day;
+  }
+
+  function renderMetrics() {
+    const activeTasks = data.tasks.filter(t => t.status !== "已完成" && t.status !== "已归档" && t.status !== "已删除");
+    document.getElementById("mToday").textContent = activeTasks.filter(t => t.date === todayIso).length;
+    document.getElementById("mOverdue").textContent = activeTasks.filter(isOverdue).length;
+    document.getElementById("mWeek").textContent = activeTasks.filter(inThisWeek).length;
+    document.getElementById("mCopy").textContent = 2;
+  }
+
+  function sortTasks(tasks) {
+    const weight = { "高": 1, "中": 2, "低": 3 };
+    return [...tasks].sort((a, b) => weight[a.priority] - weight[b.priority] || a.date.localeCompare(b.date));
+  }
+
+  function taskCard(task) {
+    return `<div class="todo">
+      <div class="todo-head">
+        <div class="todo-title">${escapeHtml(task.title)}</div>
+        <span class="tag ${priorityClass(task.priority)}">${task.priority}</span>
+      </div>
+      <div class="todo-meta">${task.date}｜${task.category}｜${task.status}</div>
+      <div>${escapeHtml(task.next || "暂无下一步动作")}</div>
+    </div>`;
+  }
+
+  function renderTodayTasks() {
+    const todayTasks = sortTasks(data.tasks.filter(t => t.date === todayIso && t.status !== "已完成" && t.status !== "已归档" && t.status !== "已删除"));
+    document.getElementById("todayTasks").innerHTML = todayTasks.length ? todayTasks.map(taskCard).join("") : `<div class="empty">今天暂无待办，可新增临时工作。</div>`;
+    const next = sortTasks(data.tasks.filter(t => t.status !== "已完成" && t.status !== "已归档" && t.status !== "已删除")).slice(0, 3);
+    document.getElementById("nextActions").innerHTML = next.length ? next.map(taskCard).join("") : `<div class="empty">暂无下一步动作。</div>`;
+  }
+
+  function renderWeeklyDutyBoard() {
+    const target = document.getElementById("weeklyDutyBoard");
+    if (!target) return;
+    const start = new Date(todayIso + "T00:00:00");
+    const end = new Date(start);
+    end.setDate(start.getDate() + 6);
+    const startIso = toLocalIso(start);
+    const endIso = toLocalIso(end);
+    const list = (data.duty || [])
+      .filter(item => item.status !== "已归档" && item.date >= startIso && item.date <= endIso)
+      .sort((a, b) => (a.date || "").localeCompare(b.date || ""));
+
+    if (!list.length) {
+      target.innerHTML = `<div class="empty">未来7天暂无护长总值安排。可先进入“护长总值”导入8月安排。</div>`;
+      return;
+    }
+
+    target.innerHTML = `<table>
+      <thead><tr><th>日期</th><th>护长</th><th>检查科室</th><th>状态</th></tr></thead>
+      <tbody>
+        ${list.map(item => {
+          const required = item.holiday ? 6 : 3;
+          const departments = (item.departments || []).slice(0, required).join("、");
+          return `<tr>
+            <td>${item.date}<br><span class="hint">${formatDateText(item.date).replace(/^\d+年/, "")}</span></td>
+            <td>${escapeHtml(item.nurse || "")}</td>
+            <td>${escapeHtml(departments || "未安排")}</td>
+            <td><span class="tag state">${item.status || "待发送"}</span></td>
+          </tr>`;
+        }).join("")}
+      </tbody>
+    </table>`;
+  }
+
+  function getTodayDuty() {
+    const activeDuty = (data.duty || []).filter(item => item.status !== "已归档");
+    return activeDuty.find(d => d.date === todayIso) || null;
+  }
+
+  function getDutyCopyText(duty) {
+    if (!duty) return "暂无今日护长总值安排，请先新增一条安排。";
+    const required = duty.holiday ? 6 : 3;
+    const deps = (duty.departments || []).slice(0, required);
+    return `护长早上好，今天查${deps.join("、")}，除常规内容外，近期重点检查患者外出管理。`;
+  }
+
+  function renderDashboardDuty() {
+    const duty = getTodayDuty();
+    const statusTarget = document.getElementById("dashboardDutyStatus");
+    const cardTarget = document.getElementById("dashboardDutyCard");
+    if (!statusTarget || !cardTarget) return;
+
+    if (!duty) {
+      statusTarget.textContent = "待安排";
+      const canImportJuly = ["2026-07-29", "2026-07-30", "2026-07-31"].includes(todayIso);
+      cardTarget.innerHTML = `<div class="empty">
+        今日暂无护长总值安排。${canImportJuly ? "你已提供7月29-31日实际数据，可直接导入。" : "可进入“护长总值”新增或导入安排。"}
+        ${canImportJuly ? `<div style="margin-top: 10px;"><button class="secondary" onclick="importJulyActualDutySchedule()">导入7月29-31实际数据</button></div>` : ""}
+      </div>`;
+      return;
+    }
+
+    const required = duty.holiday ? 6 : 3;
+    const departments = (duty.departments || []).slice(0, required);
+    statusTarget.textContent = duty.status || "待发送";
+    cardTarget.innerHTML = `
+      <div class="todo">
+        <div class="todo-head">
+          <div class="todo-title">${escapeHtml(duty.nurse || "待安排")}</div>
+          <span class="tag state">${duty.status || "待发送"}</span>
+        </div>
+        <div class="todo-meta">${duty.date}｜${duty.holiday ? "周末/节假日" : "工作日"}｜应查 ${required} 个科室</div>
+        <div>${escapeHtml(departments.join("、") || "暂未安排检查科室")}</div>
+        ${duty.sentAt ? `<div class="hint">已发送：${escapeHtml(duty.sentAt)}</div>` : ""}
+        ${duty.completedAt ? `<div class="hint">已完成：${escapeHtml(duty.completedAt)}</div>` : ""}
+        <div style="margin-top: 10px;">
+          <button class="primary" onclick="copyTodayDutyFromDashboard()">复制今日通知</button>
+          ${duty.status !== "已完成" ? `<button class="ghost" onclick="changeDutyStatus('${duty.id}', '已完成')">标记完成</button>` : ""}
+        </div>
+      </div>`;
+  }
+
+  function renderTaskTable() {
+    const category = document.getElementById("filterCategory")?.value || "";
+    const status = document.getElementById("filterStatus")?.value || "";
+    const priority = document.getElementById("filterPriority")?.value || "";
+    const archiveMode = document.getElementById("filterArchive")?.value || "active";
+
+    let visibleTasks = data.tasks.filter(task => {
+      if (category && task.category !== category) return false;
+      if (status && task.status !== status) return false;
+      if (priority && task.priority !== priority) return false;
+      if (archiveMode === "active" && (task.status === "已归档" || task.status === "已删除")) return false;
+      if (archiveMode === "archived" && task.status !== "已归档") return false;
+      if (archiveMode === "deleted" && task.status !== "已删除") return false;
+      return true;
+    });
+
+    document.getElementById("taskCount").textContent = `显示 ${visibleTasks.length} 项 / 共 ${data.tasks.length} 项`;
+    if (!visibleTasks.length) {
+      document.getElementById("taskTable").innerHTML = `<div class="empty">暂无提醒事项。</div>`;
+      return;
+    }
+    document.getElementById("taskTable").innerHTML = `<table>
+      <thead><tr><th>日期</th><th>类别</th><th>事项</th><th>优先级</th><th>状态</th><th>下一步动作</th><th>操作</th></tr></thead>
+      <tbody>
+        ${sortTasks(visibleTasks).map(task => `<tr>
+          <td>${task.date}${isOverdue(task) ? "<br><span class='tag high'>已超期</span>" : ""}</td>
+          <td>${task.category}</td>
+          <td>${escapeHtml(task.title)}</td>
+          <td><span class="tag ${priorityClass(task.priority)}">${task.priority}</span></td>
+          <td><span class="tag state">${task.status}</span></td>
+          <td>${escapeHtml(task.next || "")}</td>
+          <td>
+            ${task.status !== "已删除" && task.status !== "已归档" ? `<button class="ghost" onclick="startEditTask('${task.id}')">编辑</button>` : ""}
+            ${task.status !== "已完成" && task.status !== "已归档" && task.status !== "已删除" ? `<button class="ghost" onclick="finishTask('${task.id}')">完成</button>` : ""}
+            ${task.status !== "已归档" && task.status !== "已删除" ? `<button class="ghost" onclick="archiveTask('${task.id}')">归档</button>` : ""}
+            ${task.status !== "已删除" && task.status !== "已归档" ? `<button class="ghost" onclick="trashTask('${task.id}')">移除</button>` : ""}
+            ${task.status === "已归档" || task.status === "已删除" ? `<button class="ghost" onclick="restoreTask('${task.id}')">恢复</button>` : ""}
+          </td>
+        </tr>`).join("")}
+      </tbody>
+    </table>`;
+  }
+
+  function renderDuty() {
+    data.duty = Array.isArray(data.duty) ? data.duty : [];
+    if (!editingDutyId) {
+      document.getElementById("dutyDate").value = document.getElementById("dutyDate").value || todayIso;
+    }
+
+    const todayDuty = getTodayDuty();
+    const dutyCopyText = getDutyCopyText(todayDuty);
+    const required = todayDuty ? (todayDuty.holiday ? 6 : 3) : 3;
+    const deps = todayDuty ? (todayDuty.departments || []).slice(0, required) : [];
+    const nurseName = todayDuty && todayDuty.nurse ? todayDuty.nurse : "待安排";
+    document.getElementById("todayDutyNurseTitle").textContent = nurseName;
+    document.getElementById("todayDutyNurseMeta").textContent = todayDuty
+      ? `今日总值护长：${nurseName}｜${todayDuty.date}｜${todayDuty.holiday ? "周末/节假日" : "工作日"}`
+      : "今日总值护长：待安排";
+    document.getElementById("dutyCopy").textContent = dutyCopyText;
+
+    const archiveMode = document.getElementById("dutyFilterArchive")?.value || "active";
+    const visible = data.duty.filter(item => {
+      if (archiveMode === "active" && item.status === "已归档") return false;
+      if (archiveMode === "archived" && item.status !== "已归档") return false;
+      return true;
+    }).sort((a, b) => (a.date || "").localeCompare(b.date || ""));
+
+    if (!visible.length) {
+      document.getElementById("dutyTable").innerHTML = `<div class="empty">暂无护长总值安排，可以先新增一条。</div>`;
+      return;
+    }
+
+    document.getElementById("dutyTable").innerHTML = `<table>
+      <thead><tr><th>日期</th><th>值班护士长</th><th>应查</th><th>实际</th><th>状态</th><th>检查科室</th><th>操作</th></tr></thead>
+      <tbody>${visible.map(d => {
+        const need = d.holiday ? 6 : 3;
+        const actual = (d.departments || []).length;
+        return `<tr>
+        <td>${d.date}</td>
+        <td>${escapeHtml(d.nurse || "")}</td>
+        <td>${need}</td>
+        <td>${actual}${actual < need ? "<br><span class='tag high'>未达标</span>" : ""}</td>
+        <td><span class="tag state">${d.status || "待发送"}</span></td>
+        <td>${escapeHtml((d.departments || []).join("、"))}${d.note ? `<br><span class="hint">${escapeHtml(d.note)}</span>` : ""}</td>
+        <td>
+          ${d.status !== "已归档" ? `<button class="ghost" onclick="startEditDuty('${d.id}')">编辑</button>` : ""}
+          ${d.status !== "已发送" && d.status !== "已归档" ? `<button class="ghost" onclick="changeDutyStatus('${d.id}', '已发送')">已发送</button>` : ""}
+          ${d.status !== "已完成" && d.status !== "已归档" ? `<button class="ghost" onclick="changeDutyStatus('${d.id}', '已完成')">完成</button>` : ""}
+          ${d.status !== "已归档" ? `<button class="ghost" onclick="changeDutyStatus('${d.id}', '已归档')">归档</button>` : `<button class="ghost" onclick="changeDutyStatus('${d.id}', '待发送')">恢复</button>`}
+        </td>
+      </tr>`;
+      }).join("")}</tbody>
+    </table>`;
+  }
+
+  function renderDutyDraft() {
+    const statusTarget = document.getElementById("dutyDraftStatus");
+    const tableTarget = document.getElementById("dutyDraftTable");
+    if (!statusTarget || !tableTarget) return;
+    const drafts = Array.isArray(data.dutyDrafts) ? data.dutyDrafts : [];
+    if (!drafts.length) {
+      statusTarget.textContent = "暂无草案";
+      tableTarget.innerHTML = `<div class="empty">暂无下月草案。每月20号后可生成，也可以现在手动生成下月草案。</div>`;
+      return;
+    }
+
+    const renderDraftDepartments = departments => (departments || []).map(department => {
+      const text = escapeHtml(department);
+      return departmentMatches(department, "景田北社区医院")
+        ? `<span class="tag high">${text}</span>`
+        : text;
+    }).join("、");
+
+    const conflicts = getDutyConflictList(drafts);
+    const monthLabel = drafts[0]?.date ? drafts[0].date.slice(0, 7) : "下月";
+    const lastDuty = monthLabel !== "下月" ? getLastOfficialDutyBefore(monthLabel) : null;
+    const rotationHint = lastDuty ? `上月末：${lastDuty.date} ${lastDuty.nurse}，本月从 ${drafts[0]?.nurse || "待定"} 开始` : `本月从 ${drafts[0]?.nurse || "待定"} 开始`;
+    statusTarget.textContent = conflicts.length ? `${monthLabel}｜${conflicts.length} 个冲突需调整` : `${monthLabel}｜待确认`;
+    tableTarget.innerHTML = `
+      <div class="todo-meta" style="margin-bottom: 10px;">${escapeHtml(rotationHint)}｜科室按规则随机抽取</div>
+      ${conflicts.length ? `<div class="empty" style="margin-bottom: 10px;">存在本人科室冲突：${escapeHtml(conflicts.slice(0, 3).join("；"))}${conflicts.length > 3 ? "……" : ""}</div>` : ""}
+      <table>
+        <thead><tr><th>日期</th><th>护长</th><th>应查</th><th>检查科室</th></tr></thead>
+        <tbody>
+          ${drafts.map(item => `<tr>
+            <td>${item.date}<br><span class="hint">${weekdayText(item.date)}｜${item.holiday ? "周末" : "工作日"}</span></td>
+            <td>${escapeHtml(item.nurse || "")}</td>
+            <td>${item.holiday ? 6 : 3}</td>
+            <td>${renderDraftDepartments(item.departments)}</td>
+          </tr>`).join("")}
+        </tbody>
+      </table>`;
+  }
+
+  function generateAndSaveNextMonthDutyDraft() {
+    const info = getNextMonthInfo();
+    if (new Date(todayIso + "T00:00:00").getDate() < 20) {
+      if (!confirm("今天还没到20号，是否仍然现在生成下月草案？")) return;
+    }
+    if ((data.dutyDrafts || []).length) {
+      if (!confirm("当前已有草案，是否覆盖并重新生成？")) return;
+    }
+    data.dutyDrafts = generateNextMonthDutyDraft();
+    saveDutyToMobile();
+    renderDutyDraft();
+    setSyncStatus(`📱 ${info.label}护长总值草案已保存到本手机`, "cloud");
+  }
+
+  function confirmDutyDraftToOfficial() {
+    const drafts = Array.isArray(data.dutyDrafts) ? data.dutyDrafts : [];
+    if (!drafts.length) {
+      alert("暂无草案可确认。");
+      return;
+    }
+    const conflicts = getDutyConflictList(drafts);
+    if (conflicts.length) {
+      const proceed = confirm(`草案存在本人科室冲突：\n\n${conflicts.join("\n")}\n\n是否仍确认加入正式安排？`);
+      if (!proceed) return;
+    }
+    const monthPrefix = drafts[0].date.slice(0, 7);
+    if (!confirm(`确认将 ${monthPrefix} 草案加入正式护长总值安排吗？\n\n这会替换正式安排中 ${monthPrefix} 的已有记录，刷新后也会保留。`)) return;
+    const official = drafts.map(item => ({
+      ...item,
+      id: `duty-${item.date}`,
+      status: "待发送",
+      note: `${item.note || ""}；已确认加入正式安排`.replace(/^；/, ""),
+      source: `${monthPrefix}正式安排`
+    }));
+    data.duty = [
+      ...(data.duty || []).filter(item => !String(item.date || "").startsWith(monthPrefix)),
+      ...official
+    ].sort((a, b) => (a.date || "").localeCompare(b.date || ""));
+    data.dutyDrafts = [];
+    saveDutyToMobile();
+    renderDuty();
+    renderDutyDraft();
+    renderDashboardDuty();
+    renderWeeklyDutyBoard();
+    setSyncStatus(`📱 ${monthPrefix}正式护长总值安排已保存到本手机`, "cloud");
+  }
+
+  function clearDutyDraft() {
+    if (!(data.dutyDrafts || []).length) return;
+    if (!confirm("确定清空当前下月草案吗？正式安排不会受影响。")) return;
+    data.dutyDrafts = [];
+    saveDutyToMobile();
+    renderDutyDraft();
+    setSyncStatus("📱 下月草案已清空", "cloud");
+  }
+
+  function saveDutyToMobile() {
+    const currentDuty = data.duty || [];
+    const currentDrafts = data.dutyDrafts || [];
+    const storedWorkbench = readStoredWorkbenchData() || {};
+    const nextWorkbench = {
+      ...storedWorkbench,
+      tasks: Array.isArray(data.tasks) ? data.tasks : (Array.isArray(storedWorkbench.tasks) ? storedWorkbench.tasks : []),
+      experts: Array.isArray(data.experts) ? data.experts : (Array.isArray(storedWorkbench.experts) ? storedWorkbench.experts : []),
+      duty: currentDuty,
+      dutyDrafts: currentDrafts
+    };
+    localStorage.setItem(storageKey, JSON.stringify(nextWorkbench));
+
+    const savedMobile = (() => {
+      try {
+        const saved = localStorage.getItem(MOBILE_DATA_KEY);
+        return saved ? JSON.parse(saved) : {};
+      } catch {
+        return {};
+      }
+    })();
+    localSyncCache = {
+      ...savedMobile,
+      tasks: Array.isArray(data.tasks) ? data.tasks : (Array.isArray(savedMobile.tasks) ? savedMobile.tasks : []),
+      experts: Array.isArray(data.experts) ? data.experts : (Array.isArray(savedMobile.experts) ? savedMobile.experts : []),
+      duty: currentDuty,
+      dutyDrafts: currentDrafts
+    };
+    try {
+      localStorage.setItem(MOBILE_DATA_KEY, JSON.stringify(localSyncCache));
+    } catch (error) {
+      alert("保存失败：手机浏览器本地存储不可用。");
+    }
+  }
+
+  function parseDepartments(text) {
+    return String(text || "")
+      .split(/\n|,|，|、/)
+      .map(item => item.trim())
+      .filter(Boolean);
+  }
+
+  function getDutyConflict(item) {
+    const ownDepartment = DUTY_NURSE_DEPARTMENT_MAP[item.nurse];
+    if (!ownDepartment) return "";
+    const departments = item.departments || [];
+    const normalizedOwn = DUTY_DEPARTMENT_ALIASES[ownDepartment] || ownDepartment;
+    const normalizedDepartments = departments.map(department => DUTY_DEPARTMENT_ALIASES[department] || department);
+    return normalizedDepartments.includes(normalizedOwn)
+      ? `${item.date} ${item.nurse} 的检查科室包含本人所在科室：${ownDepartment}`
+      : "";
+  }
+
+  function getDutyConflictList(items) {
+    return (items || []).map(getDutyConflict).filter(Boolean);
+  }
+
+  function getNextMonthInfo() {
+    const current = new Date(todayIso + "T00:00:00");
+    const year = current.getMonth() === 11 ? current.getFullYear() + 1 : current.getFullYear();
+    const month = current.getMonth() === 11 ? 0 : current.getMonth() + 1;
+    const first = new Date(year, month, 1);
+    const days = new Date(year, month + 1, 0).getDate();
+    return {
+      year,
+      month,
+      key: `${year}-${String(month + 1).padStart(2, "0")}`,
+      label: `${year}年${month + 1}月`,
+      first,
+      days
+    };
+  }
+
+  function isWeekendIso(dateIso) {
+    const day = new Date(dateIso + "T00:00:00").getDay();
+    return day === 0 || day === 6;
+  }
+
+  function departmentMatches(a, b) {
+    return (DUTY_DEPARTMENT_ALIASES[a] || a) === (DUTY_DEPARTMENT_ALIASES[b] || b);
+  }
+
+  function seededRandom(seed) {
+    let value = 0;
+    for (let i = 0; i < seed.length; i += 1) value = Math.imul(31, value) + seed.charCodeAt(i) | 0;
+    return () => {
+      value = Math.imul(1664525, value) + 1013904223 | 0;
+      return ((value >>> 0) / 4294967296);
+    };
+  }
+
+  function shuffleWithSeed(list, seed) {
+    const result = [...list];
+    const random = seededRandom(seed);
+    for (let i = result.length - 1; i > 0; i -= 1) {
+      const j = Math.floor(random() * (i + 1));
+      [result[i], result[j]] = [result[j], result[i]];
+    }
+    return result;
+  }
+
+  function getLastOfficialDutyBefore(monthKey) {
+    return (data.duty || [])
+      .filter(item => item.date && item.date < `${monthKey}-01` && item.status !== "已归档")
+      .sort((a, b) => (b.date || "").localeCompare(a.date || ""))[0] || null;
+  }
+
+  function getNextNurseStartIndex(monthKey) {
+    const lastDuty = getLastOfficialDutyBefore(monthKey);
+    const lastIndex = lastDuty ? DUTY_NURSE_ROTATION.indexOf(lastDuty.nurse) : -1;
+    return lastIndex >= 0 ? (lastIndex + 1) % DUTY_NURSE_ROTATION.length : 0;
+  }
+
+  function getPreviousMonthKey(monthKey) {
+    const [yearText, monthText] = monthKey.split("-");
+    const date = new Date(Number(yearText), Number(monthText) - 2, 1);
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+  }
+
+  function getPreviousMonthNurseDepartments(monthKey) {
+    const previousKey = getPreviousMonthKey(monthKey);
+    const map = {};
+    (data.duty || [])
+      .filter(item => item.date && item.date.startsWith(previousKey) && item.status !== "已归档")
+      .forEach(item => {
+        if (!item.nurse) return;
+        map[item.nurse] = map[item.nurse] || [];
+        (item.departments || []).forEach(department => {
+          if (!map[item.nurse].some(saved => departmentMatches(saved, department))) map[item.nurse].push(department);
+        });
+      });
+    return map;
+  }
+
+  function nurseCheckedLastMonth(previousMap, nurse, department) {
+    return (previousMap[nurse] || []).some(saved => departmentMatches(saved, department));
+  }
+
+  function pickSeededCandidate(candidates, seed, prefer) {
+    const shuffled = shuffleWithSeed(candidates, seed);
+    return shuffled.find(prefer) || shuffled[0] || null;
+  }
+
+  function wasRecentlyChecked(recentDepartments, department) {
+    return (recentDepartments || []).some(saved => departmentMatches(saved, department));
+  }
+
+  function pickDutyDepartments(nurse, dateIso, regularPool, highRiskPool, options = {}) {
+    const required = isWeekendIso(dateIso) ? 6 : 3;
+    const selected = [];
+    const ownDepartment = DUTY_NURSE_DEPARTMENT_MAP[nurse] || "";
+    const previousMap = options.previousMap || {};
+    const recentDepartments = options.recentDepartments || [];
+    const addIfAllowed = (department, avoidPreviousMonth = true, avoidRecent = true) => {
+      if (!department) return false;
+      if (ownDepartment && departmentMatches(department, ownDepartment)) return false;
+      if (selected.some(item => departmentMatches(item, department))) return false;
+      if (avoidPreviousMonth && nurseCheckedLastMonth(previousMap, nurse, department)) return false;
+      if (avoidRecent && wasRecentlyChecked(recentDepartments, department)) return false;
+      selected.push(department);
+      return true;
+    };
+
+    if (options.forceJingTian) {
+      addIfAllowed("景田北社区医院", true, true) || addIfAllowed("景田北社区医院", false, false);
+    }
+
+    const highRiskTarget = isWeekendIso(dateIso) ? 3 : 2;
+    const shuffledHighRisk = shuffleWithSeed(highRiskPool, `${dateIso}-${nurse}-high`);
+    shuffledHighRisk.forEach(department => {
+      if (selected.length < Math.min(required, highRiskTarget)) addIfAllowed(department, true, true);
+    });
+
+    const shuffledRegular = shuffleWithSeed(regularPool, `${dateIso}-${nurse}-regular`);
+    shuffledRegular.forEach(department => {
+      if (selected.length < required) addIfAllowed(department, true, true);
+    });
+
+    shuffledHighRisk.forEach(department => {
+      if (selected.length < required) addIfAllowed(department, true, true);
+    });
+
+    [...shuffledRegular, ...shuffledHighRisk].forEach(department => {
+      if (selected.length < required) addIfAllowed(department, true, false);
+    });
+
+    [...shuffledRegular, ...shuffledHighRisk].forEach(department => {
+      if (selected.length < required) addIfAllowed(department, false, false);
+    });
+
+    return selected;
+  }
+
+  function generateNextMonthDutyDraft() {
+    const info = getNextMonthInfo();
+    const regularPool = DUTY_DEPARTMENTS.filter(department =>
+      department !== "景田北社区医院" &&
+      !HIGH_RISK_DUTY_DEPARTMENTS.some(highRisk => departmentMatches(highRisk, department))
+    );
+    const highRiskPool = [...HIGH_RISK_DUTY_DEPARTMENTS];
+    const startIndex = getNextNurseStartIndex(info.key);
+    const previousMap = getPreviousMonthNurseDepartments(info.key);
+    const dutyDays = [];
+    const draft = [];
+
+    for (let day = 1; day <= info.days; day += 1) {
+      const date = new Date(info.year, info.month, day);
+      const dateIso = toLocalIso(date);
+      const nurse = DUTY_NURSE_ROTATION[(startIndex + day - 1) % DUTY_NURSE_ROTATION.length];
+      dutyDays.push({ day, dateIso, nurse, holiday: isWeekendIso(dateIso) });
+    }
+
+    const jingTianDates = new Set();
+    const weeks = {};
+    dutyDays.forEach(item => {
+      const weekStart = new Date(item.dateIso + "T00:00:00");
+      const dayOfWeek = weekStart.getDay() || 7;
+      weekStart.setDate(weekStart.getDate() - dayOfWeek + 1);
+      const weekKey = toLocalIso(weekStart);
+      weeks[weekKey] = weeks[weekKey] || [];
+      weeks[weekKey].push(item);
+    });
+
+    Object.entries(weeks).forEach(([weekKey, items]) => {
+      const canCheckJingTian = item => {
+        const ownDept = DUTY_NURSE_DEPARTMENT_MAP[item.nurse] || "";
+        return !departmentMatches(ownDept, "景田北社区医院");
+      };
+      const workdayItem = pickSeededCandidate(
+        items.filter(item => !item.holiday && canCheckJingTian(item)),
+        `${info.key}-${weekKey}-jingtian-workday`,
+        item => !nurseCheckedLastMonth(previousMap, item.nurse, "景田北社区医院")
+      );
+      if (workdayItem) jingTianDates.add(workdayItem.dateIso);
+      const holidayItem = pickSeededCandidate(
+        items.filter(item => item.holiday && canCheckJingTian(item)),
+        `${info.key}-${weekKey}-jingtian-holiday`,
+        item => !nurseCheckedLastMonth(previousMap, item.nurse, "景田北社区医院")
+      );
+      if (holidayItem) jingTianDates.add(holidayItem.dateIso);
+    });
+
+    dutyDays.forEach(item => {
+      const recentDepartments = draft.slice(-2).flatMap(saved => saved.departments || []);
+      const departments = pickDutyDepartments(item.nurse, item.dateIso, regularPool, highRiskPool, {
+        previousMap,
+        forceJingTian: jingTianDates.has(item.dateIso),
+        recentDepartments
+      });
+      draft.push({
+        id: `draft-${item.dateIso}`,
+        date: item.dateIso,
+        nurse: item.nurse,
+        holiday: item.holiday,
+        status: "草案",
+        departments,
+        note: `${info.label}自动生成草案；景田北每周工作日1次+周末/节假日1次（共约8次/月）；尽量避开护长上月和前两天检查科室`,
+        source: `${info.label}草案`
+      });
+    });
+
+    return draft;
+  }
+
+  function resetDutyForm() {
+    editingDutyId = null;
+    document.getElementById("addDutyBtn").textContent = "保存护长总值安排";
+    document.getElementById("cancelDutyEditBtn").style.display = "none";
+    document.getElementById("dutyDate").value = todayIso;
+    document.getElementById("dutyNurse").value = "";
+    document.getElementById("dutyHoliday").value = "false";
+    document.getElementById("dutyStatus").value = "待发送";
+    document.getElementById("dutyDepartments").value = "";
+    document.getElementById("dutyNote").value = "";
+  }
+
+  function startEditDuty(id) {
+    const item = data.duty.find(d => d.id === id);
+    if (!item) return;
+    editingDutyId = id;
+    document.getElementById("addDutyBtn").textContent = "保存修改";
+    document.getElementById("cancelDutyEditBtn").style.display = "block";
+    document.getElementById("dutyDate").value = item.date || todayIso;
+    document.getElementById("dutyNurse").value = item.nurse || "";
+    document.getElementById("dutyHoliday").value = item.holiday ? "true" : "false";
+    document.getElementById("dutyStatus").value = item.status || "待发送";
+    document.getElementById("dutyDepartments").value = (item.departments || []).join("\n");
+    document.getElementById("dutyNote").value = item.note || "";
+    document.getElementById("dutyDate").scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  function changeDutyStatus(id, status) {
+    const nowText = new Date().toLocaleString("zh-CN", { hour12: false });
+    data.duty = data.duty.map(item => {
+      if (item.id !== id) return item;
+      return {
+        ...item,
+        status,
+        sentAt: status === "已发送" ? (item.sentAt || nowText) : item.sentAt,
+        completedAt: status === "已完成" ? (item.completedAt || nowText) : item.completedAt,
+        updatedAt: new Date().toISOString()
+      };
+    });
+    saveDutyToMobile();
+    renderDuty();
+    renderDashboardDuty();
+    renderWeeklyDutyBoard();
+    setSyncStatus("📱 护长总值已保存到本手机", "cloud");
+  }
+
+  async function copyTextSafely(text) {
+    if (!text || !text.trim()) {
+      alert("暂无可复制内容。");
+      return false;
+    }
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(text);
+        return true;
+      }
+    } catch (error) {
+      console.warn("系统剪贴板复制失败，尝试兼容方式：", error);
+    }
+
+    const textarea = document.createElement("textarea");
+    textarea.value = text;
+    textarea.setAttribute("readonly", "readonly");
+    textarea.style.position = "fixed";
+    textarea.style.left = "-9999px";
+    textarea.style.top = "0";
+    document.body.appendChild(textarea);
+    textarea.focus();
+    textarea.select();
+    textarea.setSelectionRange(0, textarea.value.length);
+    let success = false;
+    try {
+      success = document.execCommand("copy");
+    } catch (error) {
+      success = false;
+    }
+    document.body.removeChild(textarea);
+    if (!success) {
+      alert("自动复制失败，已为你选中文案区域，请长按文案手动复制。");
+      return false;
+    }
+    return true;
+  }
+
+  async function copyTodayDutyFromDashboard() {
+    const duty = getTodayDuty();
+    if (!duty) {
+      alert("今日暂无护长总值安排。");
+      return;
+    }
+    const copied = await copyTextSafely(getDutyCopyText(duty));
+    if (!copied) return;
+    if (duty.status !== "已发送" && duty.status !== "已完成") {
+      if (confirm("通知文案已复制。是否同时标记为“已发送”？")) {
+        changeDutyStatus(duty.id, "已发送");
+      } else {
+        setSyncStatus("📱 今日护长总值通知文案已复制", "cloud");
+      }
+    } else {
+      setSyncStatus("📱 今日护长总值通知文案已复制", "cloud");
+    }
+  }
+
+  function importJulyActualDutySchedule() {
+    const julyActual = buildJuly2026ActualDutySchedule();
+    const targetDates = new Set(julyActual.map(item => item.date));
+    if (!confirm("确定导入 2026 年 7 月 29-31 日护长总值实际数据吗？\n\n这会替换当前手机里这 3 天的护长总值记录，不影响其他日期。")) return;
+    const otherDays = (data.duty || []).filter(item => !targetDates.has(item.date));
+    data.duty = [...otherDays, ...julyActual].sort((a, b) => (a.date || "").localeCompare(b.date || ""));
+    saveDutyToMobile();
+    renderDuty();
+    renderDashboardDuty();
+    renderWeeklyDutyBoard();
+    setSyncStatus("📱 7月29-31日护长总值实际数据已导入", "cloud");
+  }
+
+  function importAugustDutySchedule() {
+    const augustSchedule = buildAugust2026DutySchedule();
+    const conflicts = getDutyConflictList(augustSchedule);
+    if (conflicts.length) {
+      const shouldImport = confirm(`8月安排存在护长检查本人科室冲突：\n\n${conflicts.join("\n")}\n\n是否仍先导入？系统会在备注中标记“需调整”，你可导入后逐条编辑。`);
+      if (!shouldImport) return;
+    }
+    if (!confirm("确定导入 2026 年 8 月护长总值安排吗？\n\n这会替换当前手机里 2026 年 8 月的护长总值安排，但不会影响其他月份数据。")) return;
+    const scheduleWithNotes = augustSchedule.map(item => {
+      const conflict = getDutyConflict(item);
+      if (!conflict) return item;
+      return {
+        ...item,
+        note: `${item.note || ""}；需调整：${conflict}`.replace(/^；/, "")
+      };
+    });
+    const otherMonths = (data.duty || []).filter(item => !String(item.date || "").startsWith("2026-08-"));
+    data.duty = [...otherMonths, ...scheduleWithNotes].sort((a, b) => (a.date || "").localeCompare(b.date || ""));
+    saveDutyToMobile();
+    renderDuty();
+    setSyncStatus(conflicts.length ? "📱 8月安排已导入，部分日期需调整" : "📱 2026年8月护长总值安排已导入本手机", "cloud");
+  }
+
+  function renderExpert() {
+    const experts = data.experts || [];
+    const activeExperts = experts.filter(item => item.status !== "已归档");
+    document.getElementById("expertVisitCount").textContent = activeExperts.filter(item => item.visitDate && item.status !== "已完成").length;
+    document.getElementById("expertOutputCount").textContent = activeExperts.filter(item => (item.output || "").trim()).length;
+    document.getElementById("expertGapCount").textContent = activeExperts.filter(item => item.status === "需补材料" || (item.gap || "").trim()).length;
+
+    const status = document.getElementById("expertFilterStatus")?.value || "";
+    const archiveMode = document.getElementById("expertFilterArchive")?.value || "active";
+    const visible = experts.filter(item => {
+      if (status && item.status !== status) return false;
+      if (archiveMode === "active" && item.status === "已归档") return false;
+      if (archiveMode === "archived" && item.status !== "已归档") return false;
+      return true;
+    });
+
+    document.getElementById("expertCount").textContent = `显示 ${visible.length} 项 / 共 ${experts.length} 项`;
+    if (!visible.length) {
+      document.getElementById("expertTable").innerHTML = `<div class="empty">暂无三名工程事项，可以先新增一条专家任务。</div>`;
+      return;
+    }
+
+    document.getElementById("expertTable").innerHTML = `<table>
+      <thead><tr><th>专家</th><th>方向</th><th>来深时间</th><th>状态</th><th>辅导与成果</th><th>缺口/下一步</th><th>操作</th></tr></thead>
+      <tbody>
+        ${visible.map(item => `<tr>
+          <td>${escapeHtml(item.name || "")}</td>
+          <td>${escapeHtml(item.direction || "")}</td>
+          <td>${item.visitDate || "待定"}</td>
+          <td><span class="tag state">${item.status}</span></td>
+          <td>${escapeHtml([item.guidance, item.output].filter(Boolean).join("；") || "暂无")}</td>
+          <td>${escapeHtml(item.gap || "暂无")}</td>
+          <td>
+            ${item.status !== "已归档" ? `<button class="ghost" onclick="startEditExpert('${item.id}')">编辑</button>` : ""}
+            ${item.status !== "已完成" && item.status !== "已归档" ? `<button class="ghost" onclick="changeExpertStatus('${item.id}', '已完成')">完成</button>` : ""}
+            ${item.status !== "已归档" ? `<button class="ghost" onclick="changeExpertStatus('${item.id}', '已归档')">归档</button>` : `<button class="ghost" onclick="changeExpertStatus('${item.id}', '待安排')">恢复</button>`}
+          </td>
+        </tr>`).join("")}
+      </tbody>
+    </table>`;
+  }
+
+  function startEditExpert(id) {
+    const item = data.experts.find(expert => expert.id === id);
+    if (!item) return;
+    editingExpertId = id;
+    document.getElementById("expertFormTitle").textContent = "编辑三名工程事项";
+    document.getElementById("addExpertBtn").textContent = "保存三名工程修改";
+    document.getElementById("cancelExpertEditBtn").style.display = "block";
+    document.getElementById("expertName").value = item.name || "";
+    document.getElementById("expertDirection").value = item.direction || "";
+    document.getElementById("expertVisitDate").value = item.visitDate || "";
+    document.getElementById("expertStatus").value = item.status === "已归档" ? "待安排" : (item.status || "待安排");
+    document.getElementById("expertTaskRequirement").value = item.requirement || "";
+    document.getElementById("expertGuidance").value = item.guidance || "";
+    document.getElementById("expertOutput").value = item.output || "";
+    document.getElementById("expertGap").value = item.gap || "";
+    document.getElementById("expertFormTitle").scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  function resetExpertForm() {
+    editingExpertId = null;
+    document.getElementById("expertFormTitle").textContent = "新增三名工程事项";
+    document.getElementById("addExpertBtn").textContent = "加入三名工程台账";
+    document.getElementById("cancelExpertEditBtn").style.display = "none";
+    ["expertName", "expertDirection", "expertVisitDate", "expertTaskRequirement", "expertGuidance", "expertOutput", "expertGap"].forEach(id => {
+      document.getElementById(id).value = "";
+    });
+    document.getElementById("expertStatus").value = "待安排";
+  }
+
+  async function changeExpertStatus(id, status) {
+    data.experts = data.experts.map(item => item.id === id ? { ...item, status, updatedAt: new Date().toISOString() } : item);
+    saveLocalData();
+    renderExpert();
+    if (!cloudReady) {
+      setSyncStatus("⚠️ 当前为本地备用，三名工程状态未同步云端", "error");
+      return;
+    }
+    try {
+      await updateCloudExpert(id, { status });
+      setSyncStatus("📱 三名工程状态已保存到本手机", "cloud");
+    } catch (error) {
+      console.error(error);
+      setSyncStatus("⚠️ 三名工程状态同步失败，已暂存本地", "error");
+    }
+  }
+
+  async function finishTask(id) {
+    await changeTaskStatus(id, "已完成", "📱 已保存到本手机", "⚠️ 当前为本地备用，未同步云端", "⚠️ 云端更新失败，已暂存本地");
+  }
+
+  function startEditTask(id) {
+    const task = data.tasks.find(item => item.id === id);
+    if (!task) return;
+    editingTaskId = id;
+    document.getElementById("taskFormTitle").textContent = "编辑工作提醒";
+    document.getElementById("addTaskBtn").textContent = "保存修改";
+    document.getElementById("cancelEditBtn").style.display = "block";
+    document.getElementById("taskDate").value = task.date || todayIso;
+    document.getElementById("taskCategory").value = task.category || "其他";
+    document.getElementById("taskPriority").value = task.priority || "中";
+    document.getElementById("taskStatus").value = task.status === "已归档" ? "未开始" : (task.status || "未开始");
+    document.getElementById("taskTitle").value = task.title || "";
+    document.getElementById("taskNext").value = task.next || "";
+    document.getElementById("taskFormTitle").scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  function resetTaskForm() {
+    editingTaskId = null;
+    document.getElementById("taskFormTitle").textContent = "新增工作提醒";
+    document.getElementById("addTaskBtn").textContent = "加入工作台";
+    document.getElementById("cancelEditBtn").style.display = "none";
+    document.getElementById("taskDate").value = todayIso;
+    document.getElementById("taskCategory").value = "三名工程";
+    document.getElementById("taskPriority").value = "中";
+    document.getElementById("taskStatus").value = "未开始";
+    document.getElementById("taskTitle").value = "";
+    document.getElementById("taskNext").value = "";
+  }
+
+  async function archiveTask(id) {
+    if (!confirm("确定要归档这条任务吗？归档后默认不会显示在当前任务列表里。")) return;
+    await changeTaskStatus(id, "已归档", "📱 任务已归档并保存到本手机", "⚠️ 当前为本地备用，归档未同步云端", "⚠️ 云端归档失败，已暂存本地");
+  }
+
+  async function trashTask(id) {
+    if (!confirm("确定要把这条任务移入回收站吗？这不会彻底删除，之后可以恢复。")) return;
+    await changeTaskStatus(id, "已删除", "📱 任务已移入回收站并保存到本手机", "⚠️ 当前为本地备用，移除未同步云端", "⚠️ 云端移除失败，已暂存本地");
+  }
+
+  async function restoreTask(id) {
+    await changeTaskStatus(id, "未开始", "📱 任务已恢复并保存到本手机", "⚠️ 当前为本地备用，恢复未同步云端", "⚠️ 云端恢复失败，已暂存本地");
+  }
+
+  async function changeTaskStatus(id, status, successMessage, localMessage, errorMessage) {
+    data.tasks = data.tasks.map(task => task.id === id ? { ...task, status } : task);
+    saveLocalData();
+    render();
+    if (!cloudReady) {
+      setSyncStatus(localMessage, "error");
+      return;
+    }
+    try {
+      await updateCloudTask(id, { status });
+      setSyncStatus(successMessage, "cloud");
+    } catch (error) {
+      console.error(error);
+      setSyncStatus(errorMessage, "error");
+    }
+  }
+
+  function escapeHtml(text) {
+    return String(text).replace(/[&<>"']/g, s => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#039;"
+    })[s]);
+  }
+
+  document.querySelectorAll(".nav button").forEach(button => {
+    button.addEventListener("click", () => {
+      document.querySelectorAll(".nav button").forEach(b => b.classList.remove("active"));
+      document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+      button.classList.add("active");
+      document.getElementById(button.dataset.page).classList.add("active");
+      document.getElementById("pageTitle").textContent = `鹿⭐星星人的工作台｜手机本地版｜${button.dataset.title || button.textContent.trim()}`;
+    });
+  });
+
+  document.getElementById("addTaskBtn").addEventListener("click", async () => {
+    const title = document.getElementById("taskTitle").value.trim();
+    if (!title) {
+      alert("请先填写具体事项。");
+      return;
+    }
+    const task = {
+      id: editingTaskId || createId(),
+      date: document.getElementById("taskDate").value || todayIso,
+      category: document.getElementById("taskCategory").value,
+      priority: document.getElementById("taskPriority").value,
+      status: document.getElementById("taskStatus").value,
+      title,
+      next: document.getElementById("taskNext").value.trim()
+    };
+
+    try {
+      if (editingTaskId) {
+        data.tasks = data.tasks.map(item => item.id === editingTaskId ? task : item);
+        if (cloudReady) {
+          await updateCloudTask(editingTaskId, task);
+          setSyncStatus("📱 修改已保存到本手机", "cloud");
+        } else {
+          setSyncStatus("⚠️ 当前为本地备用，修改未同步云端", "error");
+        }
+      } else if (cloudReady) {
+        const saved = await createCloudTask(task);
+        data.tasks.push(saved);
+        setSyncStatus("📱 新任务已保存到本手机", "cloud");
+      } else {
+        data.tasks.push(task);
+        setSyncStatus("⚠️ 当前为本地备用，未同步云端", "error");
+      }
+    } catch (error) {
+      console.error(error);
+      if (editingTaskId) {
+        setSyncStatus("⚠️ 云端修改失败，已暂存本地", "error");
+      } else {
+        data.tasks.push(task);
+        setSyncStatus("⚠️ 云端新增失败，已暂存本地", "error");
+      }
+    }
+
+    saveLocalData();
+    resetTaskForm();
+    render();
+  });
+
+  document.getElementById("cancelEditBtn").addEventListener("click", resetTaskForm);
+
+  ["filterCategory", "filterStatus", "filterPriority", "filterArchive"].forEach(id => {
+    document.getElementById(id).addEventListener("change", renderTaskTable);
+  });
+
+  document.getElementById("addExpertBtn").addEventListener("click", async () => {
+    const name = document.getElementById("expertName").value.trim();
+    const direction = document.getElementById("expertDirection").value.trim();
+    if (!name && !direction) {
+      alert("请至少填写专家姓名或专家方向。");
+      return;
+    }
+
+    const item = {
+      id: editingExpertId || createId(),
+      name,
+      direction,
+      visitDate: document.getElementById("expertVisitDate").value,
+      status: document.getElementById("expertStatus").value,
+      requirement: document.getElementById("expertTaskRequirement").value.trim(),
+      guidance: document.getElementById("expertGuidance").value.trim(),
+      output: document.getElementById("expertOutput").value.trim(),
+      gap: document.getElementById("expertGap").value.trim(),
+      updatedAt: new Date().toISOString()
+    };
+
+    try {
+      if (editingExpertId) {
+        data.experts = data.experts.map(expert => expert.id === editingExpertId ? item : expert);
+        if (cloudReady) {
+          const saved = await updateCloudExpert(editingExpertId, item);
+          data.experts = data.experts.map(expert => expert.id === editingExpertId ? saved : expert);
+          setSyncStatus("📱 三名工程修改已保存到本手机", "cloud");
+        } else {
+          setSyncStatus("⚠️ 当前为本地备用，三名工程修改未同步云端", "error");
+        }
+      } else if (cloudReady) {
+        const saved = await createCloudExpert(item);
+        data.experts.push(saved);
+        setSyncStatus("📱 三名工程事项已保存到本手机", "cloud");
+      } else {
+        data.experts.push(item);
+        setSyncStatus("⚠️ 当前为本地备用，三名工程事项未同步云端", "error");
+      }
+    } catch (error) {
+      console.error(error);
+      if (editingExpertId) {
+        setSyncStatus("⚠️ 三名工程云端修改失败，已暂存本地", "error");
+      } else {
+        data.experts.push(item);
+        setSyncStatus("⚠️ 三名工程云端新增失败，已暂存本地", "error");
+      }
+    }
+
+    saveLocalData();
+    resetExpertForm();
+    renderExpert();
+  });
+
+  document.getElementById("cancelExpertEditBtn").addEventListener("click", resetExpertForm);
+
+  ["expertFilterStatus", "expertFilterArchive"].forEach(id => {
+    document.getElementById(id).addEventListener("change", renderExpert);
+  });
+
+  document.getElementById("addDutyBtn").addEventListener("click", () => {
+    const date = document.getElementById("dutyDate").value || todayIso;
+    const nurse = document.getElementById("dutyNurse").value.trim();
+    const departments = parseDepartments(document.getElementById("dutyDepartments").value);
+    if (!nurse && !departments.length) {
+      alert("请至少填写值班护士长或检查科室。");
+      return;
+    }
+
+    const item = {
+      id: editingDutyId || createId(),
+      date,
+      nurse,
+      holiday: document.getElementById("dutyHoliday").value === "true",
+      status: document.getElementById("dutyStatus").value,
+      departments,
+      note: document.getElementById("dutyNote").value.trim(),
+      updatedAt: new Date().toISOString()
+    };
+
+    const conflict = getDutyConflict(item);
+    if (conflict) {
+      alert(`安排冲突：${conflict}\n\n请调整检查科室后再保存。`);
+      return;
+    }
+
+    if (editingDutyId) {
+      data.duty = data.duty.map(d => d.id === editingDutyId ? item : d);
+      setSyncStatus("📱 护长总值修改已保存到本手机", "cloud");
+    } else {
+      data.duty.push(item);
+      setSyncStatus("📱 护长总值安排已保存到本手机", "cloud");
+    }
+    saveDutyToMobile();
+    resetDutyForm();
+    renderDuty();
+  });
+
+  document.getElementById("cancelDutyEditBtn").addEventListener("click", resetDutyForm);
+  document.getElementById("dutyFilterArchive").addEventListener("change", renderDuty);
+  document.getElementById("importJulyActualDutyBtn").addEventListener("click", importJulyActualDutySchedule);
+  document.getElementById("importAugustDutyBtn").addEventListener("click", importAugustDutySchedule);
+  document.getElementById("generateNextMonthDraftBtn").addEventListener("click", generateAndSaveNextMonthDutyDraft);
+  document.getElementById("confirmDutyDraftBtn").addEventListener("click", confirmDutyDraftToOfficial);
+  document.getElementById("clearDutyDraftBtn").addEventListener("click", clearDutyDraft);
+
+  document.getElementById("copyDutyBtn").addEventListener("click", async () => {
+    await copyTodayDutyFromDashboard();
+  });
+
+  document.getElementById("eventPromptBtn").addEventListener("click", () => {
+    document.querySelectorAll(".nav button").forEach(b => b.classList.remove("active"));
+    document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+    document.getElementById("ai").classList.add("active");
+    document.getElementById("pageTitle").textContent = "鹿⭐星星人的工作台｜手机本地版｜AI 辅助";
+    document.getElementById("promptBox").textContent = promptTemplates.report;
+  });
+
+  document.querySelectorAll("[data-prompt]").forEach(button => {
+    button.addEventListener("click", () => {
+      document.getElementById("promptBox").textContent = promptTemplates[button.dataset.prompt];
+    });
+  });
+
+  document.getElementById("copyPromptBtn").addEventListener("click", async () => {
+    const copied = await copyTextSafely(document.getElementById("promptBox").textContent);
+    if (copied) alert("已复制提示词。");
+  });
+
+  document.getElementById("seedBtn").addEventListener("click", () => {
+    if (confirm("是否仅在本机恢复示例数据？这不会写入云端，适合演示或临时查看。")) {
+      data = structuredClone(defaultData);
+      data.dutyDrafts = [];
+      localSyncCache = { tasks: data.tasks || [], experts: data.experts || [], duty: data.duty || [], dutyDrafts: [] };
+      saveLocalSyncCache().catch(error => console.warn("示例数据保存失败：", error));
+      saveLocalData();
+      setSyncStatus("⭐ 已恢复本地示例数据，未写入云端", "local");
+      render();
+    }
+  });
+
+  document.getElementById("exportBtn").addEventListener("click", () => {
+    const payload = {
+      app: "鹿星工作台手机本地版",
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      data: {
+        tasks: data.tasks || [],
+        experts: data.experts || [],
+        duty: data.duty || [],
+        dutyDrafts: data.dutyDrafts || []
+      }
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `鹿星工作台手机备份-${todayIso}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    setSyncStatus("📱 手机本地数据备份已导出", "cloud");
+  });
+
+  document.getElementById("importBtn").addEventListener("click", () => {
+    document.getElementById("importFile").click();
+  });
+
+  document.getElementById("importFile").addEventListener("change", event => {
+    const file = event.target.files && event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const payload = JSON.parse(String(reader.result || "{}"));
+        const imported = payload.data || payload;
+        const tasks = Array.isArray(imported.tasks) ? imported.tasks : [];
+        const experts = Array.isArray(imported.experts) ? imported.experts : [];
+        const duty = Array.isArray(imported.duty) ? imported.duty : [];
+        const dutyDrafts = Array.isArray(imported.dutyDrafts) ? imported.dutyDrafts : [];
+        if (!confirm(`确定导入这个备份吗？当前手机本地数据会被覆盖。\n\n将导入：${tasks.length} 条日程提醒，${experts.length} 条三名工程，${duty.length} 条护长总值，${dutyDrafts.length} 条草案。`)) {
+          event.target.value = "";
+          return;
+        }
+        data.tasks = tasks;
+        data.experts = experts;
+        data.duty = duty;
+        data.dutyDrafts = dutyDrafts;
+        localSyncCache = { tasks, experts, duty: data.duty, dutyDrafts };
+        localStorage.setItem(MOBILE_DATA_KEY, JSON.stringify(localSyncCache));
+        saveLocalData();
+        render();
+        setSyncStatus("📱 备份已导入并恢复到本手机", "cloud");
+      } catch (error) {
+        alert("导入失败：请选择正确的 JSON 备份文件。");
+      } finally {
+        event.target.value = "";
+      }
+    };
+    reader.readAsText(file, "utf-8");
+  });
+
+  async function initApp() {
+    try {
+      await loadCloudTasks();
+      await loadCloudExperts();
+      await loadCloudDuty();
+      setSyncStatus("📱 日程提醒、三名工程和护长总值已保存在本手机", "cloud");
+      render();
+    } catch (error) {
+      console.error(error);
+      const storedWorkbench = readStoredWorkbenchData() || {};
+      localSyncCache = {
+        tasks: Array.isArray(storedWorkbench.tasks) ? storedWorkbench.tasks : [],
+        experts: Array.isArray(storedWorkbench.experts) ? storedWorkbench.experts : [],
+        duty: Array.isArray(storedWorkbench.duty) ? storedWorkbench.duty : [],
+        dutyDrafts: Array.isArray(storedWorkbench.dutyDrafts) ? storedWorkbench.dutyDrafts : []
+      };
+      data.tasks = localSyncCache.tasks;
+      data.experts = localSyncCache.experts;
+      data.duty = localSyncCache.duty;
+      data.dutyDrafts = localSyncCache.dutyDrafts;
+      cloudReady = true;
+      try {
+        localStorage.setItem(MOBILE_DATA_KEY, JSON.stringify(localSyncCache));
+      } catch {}
+      setSyncStatus("📱 已保留手机本地数据，可继续使用", "cloud");
+      render();
+    }
+  }
+
+  window.addEventListener("error", event => {
+    setSyncStatus(`⚠️ 页面脚本错误：${String(event.message).slice(0, 24)}`, "error");
+  });
+
+  window.addEventListener("unhandledrejection", event => {
+    const message = event.reason && event.reason.message ? event.reason.message : String(event.reason);
+    setSyncStatus(`⚠️ 异步错误：${message.slice(0, 24)}`, "error");
+  });
+
+  document.getElementById("loginBtn").addEventListener("click", () => {
+    loginLocalSync().catch(error => {
+      document.getElementById("loginError").textContent = error.message || "登录失败。";
+      document.getElementById("loginError").style.display = "block";
+    });
+  });
+
+  document.getElementById("loginPassword").addEventListener("keydown", event => {
+    if (event.key === "Enter") document.getElementById("loginBtn").click();
+  });
+
+  document.getElementById("logoutBtn").addEventListener("click", logoutLocalSync);
+
+  if (localAuthToken) {
+    document.getElementById("loginScreen").style.display = "none";
+    document.getElementById("appShell").style.display = "";
+    initApp();
+  }
+
+  setInterval(refreshTodayIfNeeded, 60000);
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) refreshTodayIfNeeded();
+  });
+
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("./mobile-service-worker.js").catch(error => {
+        console.warn("手机本地版缓存注册失败：", error);
+      });
+    });
+  }
+</script>
+</body>
+</html>
