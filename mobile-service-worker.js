@@ -1,4 +1,4 @@
-const CACHE_NAME = "deer-star-mobile-local-v36";
+const CACHE_NAME = "deer-star-mobile-local-v37";
 
 const APP_ASSETS = [
   "./mobile-local.html",
