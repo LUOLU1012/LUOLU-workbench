@@ -7,11 +7,11 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="鹿星工作台">
-<link rel="manifest" href="manifest.json?v=38">
-<link rel="apple-touch-icon" href="icon-512.png?v=38">
-<link rel="apple-touch-icon" sizes="192x192" href="icon-192.png?v=38">
-<link rel="apple-touch-icon" sizes="512x512" href="icon-512.png?v=38">
-<link rel="icon" type="image/png" href="icon-512.png?v=38">
+<link rel="manifest" href="manifest.json?v=39">
+<link rel="apple-touch-icon" href="icon-512.png?v=39">
+<link rel="apple-touch-icon" sizes="192x192" href="icon-192.png?v=39">
+<link rel="apple-touch-icon" sizes="512x512" href="icon-512.png?v=39">
+<link rel="icon" type="image/png" href="icon-512.png?v=39">
 <title>鹿⭐星星人的工作台｜手机本地版</title>
 <style>
   :root {
@@ -1849,6 +1849,35 @@
       output: item.output || "",
       gap: item.gap || "",
       updated_at: new Date().toISOString()
+    };
+  }
+
+  function appTaskToLocalRow(task) {
+    return {
+      id: task.id,
+      date: task.date,
+      category: task.category,
+      priority: task.priority,
+      status: task.status,
+      title: task.title,
+      next_action: task.next || "",
+      created_at: task.createdAt || new Date().toISOString(),
+      updated_at: task.updatedAt || new Date().toISOString()
+    };
+  }
+
+  function appExpertToLocalRow(expert) {
+    return {
+      id: expert.id,
+      name: expert.name || "",
+      direction: expert.direction || "",
+      visit_date: expert.visitDate || "",
+      status: expert.status || "待安排",
+      requirement: expert.requirement || "",
+      guidance: expert.guidance || "",
+      output: expert.output || "",
+      gap: expert.gap || "",
+      updated_at: expert.updatedAt || new Date().toISOString()
     };
   }
 
