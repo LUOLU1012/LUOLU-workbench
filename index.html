@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="鹿星工作台">
-<link rel="manifest" href="manifest.json?v=42">
+<link rel="manifest" href="manifest.json?v=43">
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="apple-touch-icon" sizes="192x192" href="icon-192.png">
 <link rel="apple-touch-icon" sizes="512x512" href="icon-512.png">
@@ -1759,6 +1759,15 @@
       duty: Array.isArray(data.duty) ? data.duty : [],
       dutyDrafts: Array.isArray(data.dutyDrafts) ? data.dutyDrafts : []
     };
+    const newDataScore = localDataScore(payload);
+    const existingMobile = safeParseLocalStorage(MOBILE_DATA_KEY);
+    const existingScore = localDataScore(existingMobile);
+    if (newDataScore < existingScore * 0.5 && existingScore > 0) {
+      console.warn("[saveLocalData] 检测到数据量骤减，已阻止覆盖。新数据评分:", newDataScore, "现有数据评分:", existingScore);
+      const backupKey = `${MOBILE_DATA_KEY}-auto-backup`;
+      try { localStorage.setItem(backupKey, JSON.stringify(existingMobile)); } catch {}
+      return;
+    }
     localStorage.setItem(storageKey, JSON.stringify(payload));
     localStorage.setItem(MOBILE_DATA_KEY, JSON.stringify(payload));
   }
@@ -2024,9 +2033,7 @@
     const rows = await supabaseRequest("tasks?select=*&order=date.asc,created_at.asc");
     data.tasks = rows.map(toAppTask);
     cloudReady = true;
-    saveLocalData();
     setSyncStatus("📱 手机本地数据已连接", "cloud");
-    render();
   }
 
   async function createCloudTask(task) {
@@ -2059,14 +2066,12 @@
   async function loadCloudExperts() {
     const rows = await supabaseRequest("expert_projects?select=*&order=created_at.desc");
     data.experts = rows.map(toAppExpert);
-    saveLocalData();
   }
 
   async function loadCloudDuty() {
     const store = await loadLocalSyncCache();
     data.duty = Array.isArray(store.duty) ? store.duty : [];
     data.dutyDrafts = Array.isArray(store.dutyDrafts) ? store.dutyDrafts : [];
-    saveLocalData();
   }
 
   async function createCloudExpert(item) {
@@ -3868,25 +3873,39 @@
 
   async function initApp() {
     try {
+      const existingData = readStoredWorkbenchData() || {};
+      const existingScore = localDataScore(existingData);
+      const backupData = safeParseLocalStorage(`${MOBILE_DATA_KEY}-auto-backup`);
+      if (backupData && localDataScore(backupData) > existingScore) {
+        console.warn("[initApp] 检测到自动备份，正在恢复...");
+        localSyncCache = normalizeWorkbenchData(backupData);
+        localStorage.setItem(MOBILE_DATA_KEY, JSON.stringify(localSyncCache));
+        localStorage.setItem(storageKey, JSON.stringify(localSyncCache));
+      }
+
       await loadCloudTasks();
       await loadCloudExperts();
       await loadCloudDuty();
+      saveLocalData();
       setSyncStatus("📱 日程提醒、三名工程和护长总值已保存在本手机", "cloud");
       render();
     } catch (error) {
       console.error(error);
       const storedWorkbench = readStoredWorkbenchData() || {};
+      const backupData = safeParseLocalStorage(`${MOBILE_DATA_KEY}-auto-backup`);
+      const bestSource = localDataScore(backupData) > localDataScore(storedWorkbench) ? backupData : storedWorkbench;
       localSyncCache = normalizeWorkbenchData({
-        ...storedWorkbench,
-        tasks: Array.isArray(storedWorkbench.tasks) ? storedWorkbench.tasks : [],
-        experts: Array.isArray(storedWorkbench.experts) ? storedWorkbench.experts : [],
-        duty: Array.isArray(storedWorkbench.duty) ? storedWorkbench.duty : [],
-        dutyDrafts: Array.isArray(storedWorkbench.dutyDrafts) ? storedWorkbench.dutyDrafts : []
+        ...bestSource,
+        tasks: Array.isArray(bestSource.tasks) ? bestSource.tasks : [],
+        experts: Array.isArray(bestSource.experts) ? bestSource.experts : [],
+        duty: Array.isArray(bestSource.duty) ? bestSource.duty : [],
+        dutyDrafts: Array.isArray(bestSource.dutyDrafts) ? bestSource.dutyDrafts : []
       });
       data = structuredClone(localSyncCache);
       cloudReady = true;
       try {
         localStorage.setItem(MOBILE_DATA_KEY, JSON.stringify(localSyncCache));
+        localStorage.setItem(storageKey, JSON.stringify(localSyncCache));
       } catch {}
       setSyncStatus("📱 已保留手机本地数据，可继续使用", "cloud");
       render();
