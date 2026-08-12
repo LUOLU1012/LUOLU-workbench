@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="鹿星工作台">
-<link rel="manifest" href="manifest.json?v=41">
+<link rel="manifest" href="manifest.json?v=42">
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="apple-touch-icon" sizes="192x192" href="icon-192.png">
 <link rel="apple-touch-icon" sizes="512x512" href="icon-512.png">
@@ -1145,7 +1145,7 @@
             <span>第一版规则</span>
           </div>
           <p>工作日每天至少检查 3 个科室；周末及节假日至少检查 6 个科室。</p>
-          <p>景田北社区医院每周工作日安排1次、周末/节假日安排1次（约8次/月）；9 个高风险科室按隔日或隔 2 日频率重点检查，同时兼顾其他科室轮转。</p>
+          <p>景田北社区医院每周工作日安排1次、周末/节假日安排1次（约8次/月），不连续两天排班；9 个高风险科室按隔日或隔 2 日频率重点检查；其他科室保证每月至少1-2次检查。</p>
           <div style="margin-top: 12px;">
             <button class="secondary" id="importJulyActualDutyBtn">导入7月29-31实际数据</button>
             <button class="secondary" id="importAugustDutyBtn">导入2026年8月安排</button>
@@ -3036,9 +3036,28 @@
   }
 
   function getNextNurseStartIndex(monthKey) {
+    const startIndex = getTheoreticalStartIndex(monthKey);
     const lastDuty = getLastOfficialDutyBefore(monthKey);
-    const lastIndex = lastDuty ? DUTY_NURSE_ROTATION.indexOf(lastDuty.nurse) : -1;
-    return lastIndex >= 0 ? (lastIndex + 1) % DUTY_NURSE_ROTATION.length : 0;
+    if (!lastDuty) return startIndex;
+    const theoreticalNurse = DUTY_NURSE_ROTATION[(startIndex - 1 + DUTY_NURSE_ROTATION.length) % DUTY_NURSE_ROTATION.length];
+    if (lastDuty.nurse === theoreticalNurse) {
+      const lastIndex = DUTY_NURSE_ROTATION.indexOf(lastDuty.nurse);
+      return (lastIndex + 1) % DUTY_NURSE_ROTATION.length;
+    }
+    return startIndex;
+  }
+
+  function getTheoreticalStartIndex(monthKey) {
+    const REFERENCE_DATE = "2026-07-31";
+    const REFERENCE_INDEX = DUTY_NURSE_ROTATION.indexOf("卢建荣");
+    const [year, month] = monthKey.split("-").map(Number);
+    const lastDayPrevMonth = new Date(year, month - 1, 0);
+    const lastDayIso = `${lastDayPrevMonth.getFullYear()}-${String(lastDayPrevMonth.getMonth() + 1).padStart(2, "0")}-${String(lastDayPrevMonth.getDate()).padStart(2, "0")}`;
+    const refDate = new Date(REFERENCE_DATE + "T00:00:00");
+    const targetDate = new Date(lastDayIso + "T00:00:00");
+    const daysDiff = Math.round((targetDate - refDate) / 86400000);
+    const lastIndex = ((REFERENCE_INDEX + daysDiff) % DUTY_NURSE_ROTATION.length + DUTY_NURSE_ROTATION.length) % DUTY_NURSE_ROTATION.length;
+    return (lastIndex + 1) % DUTY_NURSE_ROTATION.length;
   }
 
   function getPreviousMonthKey(monthKey) {
@@ -3081,6 +3100,7 @@
     const ownDepartment = DUTY_NURSE_DEPARTMENT_MAP[nurse] || "";
     const previousMap = options.previousMap || {};
     const recentDepartments = options.recentDepartments || [];
+    const deptFrequency = options.deptFrequency || {};
     const addIfAllowed = (department, avoidPreviousMonth = true, avoidRecent = true) => {
       if (!department) return false;
       if (ownDepartment && departmentMatches(department, ownDepartment)) return false;
@@ -3102,7 +3122,8 @@
     });
 
     const shuffledRegular = shuffleWithSeed(regularPool, `${dateIso}-${nurse}-regular`);
-    shuffledRegular.forEach(department => {
+    const freqSortedRegular = [...shuffledRegular].sort((a, b) => (deptFrequency[a] || 0) - (deptFrequency[b] || 0));
+    freqSortedRegular.forEach(department => {
       if (selected.length < required) addIfAllowed(department, true, true);
     });
 
@@ -3110,11 +3131,11 @@
       if (selected.length < required) addIfAllowed(department, true, true);
     });
 
-    [...shuffledRegular, ...shuffledHighRisk].forEach(department => {
+    [...freqSortedRegular, ...shuffledHighRisk].forEach(department => {
       if (selected.length < required) addIfAllowed(department, true, false);
     });
 
-    [...shuffledRegular, ...shuffledHighRisk].forEach(department => {
+    [...freqSortedRegular, ...shuffledHighRisk].forEach(department => {
       if (selected.length < required) addIfAllowed(department, false, false);
     });
 
@@ -3132,6 +3153,7 @@
     const previousMap = getPreviousMonthNurseDepartments(info.key);
     const dutyDays = [];
     const draft = [];
+    const deptFrequency = {};
 
     for (let day = 1; day <= info.days; day += 1) {
       const date = new Date(info.year, info.month, day);
@@ -3140,7 +3162,7 @@
       dutyDays.push({ day, dateIso, nurse, holiday: isWeekendIso(dateIso) });
     }
 
-    const jingTianDates = new Set();
+    const allJingTianDates = new Set();
     const weeks = {};
     dutyDays.forEach(item => {
       const weekStart = new Date(item.dateIso + "T00:00:00");
@@ -3151,31 +3173,52 @@
       weeks[weekKey].push(item);
     });
 
+    const isAdjacentToJingTian = (dateIso) => {
+      const date = new Date(dateIso + "T00:00:00");
+      const prev = new Date(date);
+      prev.setDate(prev.getDate() - 1);
+      const next = new Date(date);
+      next.setDate(next.getDate() + 1);
+      return allJingTianDates.has(toLocalIso(prev)) || allJingTianDates.has(toLocalIso(next));
+    };
+
     Object.entries(weeks).forEach(([weekKey, items]) => {
       const canCheckJingTian = item => {
         const ownDept = DUTY_NURSE_DEPARTMENT_MAP[item.nurse] || "";
         return !departmentMatches(ownDept, "景田北社区医院");
       };
+      const workdayCandidates = items.filter(item => !item.holiday && canCheckJingTian(item) && !isAdjacentToJingTian(item.dateIso));
+      const workdayFallback = items.filter(item => !item.holiday && canCheckJingTian(item));
       const workdayItem = pickSeededCandidate(
-        items.filter(item => !item.holiday && canCheckJingTian(item)),
+        workdayCandidates.length > 0 ? workdayCandidates : workdayFallback,
         `${info.key}-${weekKey}-jingtian-workday`,
         item => !nurseCheckedLastMonth(previousMap, item.nurse, "景田北社区医院")
       );
-      if (workdayItem) jingTianDates.add(workdayItem.dateIso);
+      if (workdayItem) allJingTianDates.add(workdayItem.dateIso);
+
+      const holidayCandidates = items.filter(item => item.holiday && canCheckJingTian(item) && !isAdjacentToJingTian(item.dateIso));
+      const holidayFallback = items.filter(item => item.holiday && canCheckJingTian(item));
       const holidayItem = pickSeededCandidate(
-        items.filter(item => item.holiday && canCheckJingTian(item)),
+        holidayCandidates.length > 0 ? holidayCandidates : holidayFallback,
         `${info.key}-${weekKey}-jingtian-holiday`,
         item => !nurseCheckedLastMonth(previousMap, item.nurse, "景田北社区医院")
       );
-      if (holidayItem) jingTianDates.add(holidayItem.dateIso);
+      if (holidayItem) allJingTianDates.add(holidayItem.dateIso);
     });
+
+    const jingTianDates = allJingTianDates;
 
     dutyDays.forEach(item => {
       const recentDepartments = draft.slice(-2).flatMap(saved => saved.departments || []);
       const departments = pickDutyDepartments(item.nurse, item.dateIso, regularPool, highRiskPool, {
         previousMap,
         forceJingTian: jingTianDates.has(item.dateIso),
-        recentDepartments
+        recentDepartments,
+        deptFrequency
+      });
+      departments.forEach(dept => {
+        const matched = [...regularPool, ...highRiskPool].find(d => departmentMatches(d, dept));
+        if (matched) deptFrequency[matched] = (deptFrequency[matched] || 0) + 1;
       });
       draft.push({
         id: `draft-${item.dateIso}`,
@@ -3184,12 +3227,54 @@
         holiday: item.holiday,
         status: "草案",
         departments,
-        note: `${info.label}自动生成草案；景田北每周工作日1次+周末/节假日1次（共约8次/月）；尽量避开护长上月和前两天检查科室`,
+        note: `${info.label}自动生成草案；景田北每周工作日1次+周末/节假日1次（共约8次/月），不连续两天；尽量避开护长上月和前两天检查科室`,
         source: `${info.label}草案`
       });
     });
 
+    ensureDepartmentFrequency(draft, regularPool, deptFrequency);
+
     return draft;
+  }
+
+  function ensureDepartmentFrequency(draft, regularPool, deptFrequency) {
+    const allDepts = [...regularPool];
+    const minTarget = 1;
+    const preferredTarget = 2;
+
+    for (let pass = 0; pass < 2; pass += 1) {
+      const target = pass === 0 ? minTarget : preferredTarget;
+      const missing = allDepts.filter(dept => (deptFrequency[dept] || 0) < target);
+      if (missing.length === 0) continue;
+
+      missing.forEach(missingDept => {
+        for (let i = 0; i < draft.length; i += 1) {
+          const day = draft[i];
+          const nurse = day.nurse;
+          const ownDept = DUTY_NURSE_DEPARTMENT_MAP[nurse] || "";
+          if (ownDept && departmentMatches(missingDept, ownDept)) continue;
+          if ((day.departments || []).some(d => departmentMatches(d, missingDept))) continue;
+
+          const depts = day.departments || [];
+          for (let j = 0; j < depts.length; j += 1) {
+            const dept = depts[j];
+            const matched = regularPool.find(d => departmentMatches(d, dept));
+            if (!matched) continue;
+            if ((deptFrequency[matched] || 0) <= target) continue;
+
+            const prevDay = i > 0 ? draft[i - 1] : null;
+            const nextDay = i < draft.length - 1 ? draft[i + 1] : null;
+            const recentCheck = [...(prevDay?.departments || []), ...(nextDay?.departments || [])];
+            if (recentCheck.some(d => departmentMatches(d, missingDept))) continue;
+
+            depts[j] = missingDept;
+            deptFrequency[matched] = (deptFrequency[matched] || 0) - 1;
+            deptFrequency[missingDept] = (deptFrequency[missingDept] || 0) + 1;
+            break;
+          }
+        }
+      });
+    }
   }
 
   function toggleDutyManualForm(open) {
