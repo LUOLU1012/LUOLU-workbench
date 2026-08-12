@@ -2,7 +2,7 @@
   "name": "鹿⭐星星人的工作台｜手机本地版",
   "short_name": "鹿星本地",
   "description": "手机本地保存的个人工作台：日程提醒、三名工程、护长总值、不良事件、压力性损伤、专科小组和党务工作。",
-  "start_url": "./index.html?v=41",
+  "start_url": "./index.html?v=42",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait-primary",
