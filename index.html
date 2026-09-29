@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="鹿星工作台">
-<link rel="manifest" href="manifest.json?v=43">
+<link rel="manifest" href="manifest.json?v=44">
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="apple-touch-icon" sizes="192x192" href="icon-192.png">
 <link rel="apple-touch-icon" sizes="512x512" href="icon-512.png">
@@ -1579,7 +1579,7 @@
     "马鹏莉", "张慧慧", "吕海鹏", "陈应平", "黄萍燕", "龚杨",
     "陈薇薇", "游旅", "吴蒙", "刘牧军", "计娜", "吴玉娟", "钟雪莲",
     "徐硕阳", "高玲玲", "吴杰倩", "陈苑婷", "黄燕芳", "李晓", "靳彩云",
-    "林金", "包爱琴", "俞菲", "徐子才", "翟妍", "宋春树", "彭细果",
+    "林金", "包爱琴", "俞菲", "徐子才", "翟妍", "宋春树",
     "肖美", "卢建荣", "李娜", "罗丽丹", "王泽红"
   ];
 
@@ -3006,9 +3006,23 @@
     };
   }
 
+  const STATUTORY_HOLIDAYS_2026 = new Set([
+    "2026-01-01", "2026-01-02", "2026-01-03",
+    "2026-02-16", "2026-02-17", "2026-02-18", "2026-02-19", "2026-02-20", "2026-02-21", "2026-02-22",
+    "2026-04-04", "2026-04-05", "2026-04-06",
+    "2026-05-01", "2026-05-02", "2026-05-03", "2026-05-04", "2026-05-05",
+    "2026-06-19", "2026-06-20", "2026-06-21",
+    "2026-09-25", "2026-09-26", "2026-09-27",
+    "2026-10-01", "2026-10-02", "2026-10-03", "2026-10-04", "2026-10-05", "2026-10-06", "2026-10-07"
+  ]);
+
   function isWeekendIso(dateIso) {
     const day = new Date(dateIso + "T00:00:00").getDay();
     return day === 0 || day === 6;
+  }
+
+  function isHolidayIso(dateIso) {
+    return isWeekendIso(dateIso) || STATUTORY_HOLIDAYS_2026.has(dateIso);
   }
 
   function departmentMatches(a, b) {
@@ -3100,7 +3114,7 @@
   }
 
   function pickDutyDepartments(nurse, dateIso, regularPool, highRiskPool, options = {}) {
-    const required = isWeekendIso(dateIso) ? 6 : 3;
+    const required = isHolidayIso(dateIso) ? 6 : 3;
     const selected = [];
     const ownDepartment = DUTY_NURSE_DEPARTMENT_MAP[nurse] || "";
     const previousMap = options.previousMap || {};
@@ -3120,7 +3134,7 @@
       addIfAllowed("景田北社区医院", true, true) || addIfAllowed("景田北社区医院", false, false);
     }
 
-    const highRiskTarget = isWeekendIso(dateIso) ? 3 : 2;
+    const highRiskTarget = isHolidayIso(dateIso) ? 3 : 2;
     const shuffledHighRisk = shuffleWithSeed(highRiskPool, `${dateIso}-${nurse}-high`);
     shuffledHighRisk.forEach(department => {
       if (selected.length < Math.min(required, highRiskTarget)) addIfAllowed(department, true, true);
@@ -3164,7 +3178,7 @@
       const date = new Date(info.year, info.month, day);
       const dateIso = toLocalIso(date);
       const nurse = DUTY_NURSE_ROTATION[(startIndex + day - 1) % DUTY_NURSE_ROTATION.length];
-      dutyDays.push({ day, dateIso, nurse, holiday: isWeekendIso(dateIso) });
+      dutyDays.push({ day, dateIso, nurse, holiday: isHolidayIso(dateIso) });
     }
 
     const allJingTianDates = new Set();
