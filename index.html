@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="鹿星工作台">
-<link rel="manifest" href="manifest.json?v=44">
+<link rel="manifest" href="manifest.json?v=45">
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="apple-touch-icon" sizes="192x192" href="icon-192.png">
 <link rel="apple-touch-icon" sizes="512x512" href="icon-512.png">
@@ -3067,8 +3067,8 @@
   }
 
   function getTheoreticalStartIndex(monthKey) {
-    const REFERENCE_DATE = "2026-07-31";
-    const REFERENCE_INDEX = DUTY_NURSE_ROTATION.indexOf("卢建荣");
+    const REFERENCE_DATE = "2026-09-30";
+    const REFERENCE_INDEX = DUTY_NURSE_ROTATION.indexOf("宋春树");
     const [year, month] = monthKey.split("-").map(Number);
     const lastDayPrevMonth = new Date(year, month - 1, 0);
     const lastDayIso = `${lastDayPrevMonth.getFullYear()}-${String(lastDayPrevMonth.getMonth() + 1).padStart(2, "0")}-${String(lastDayPrevMonth.getDate()).padStart(2, "0")}`;
